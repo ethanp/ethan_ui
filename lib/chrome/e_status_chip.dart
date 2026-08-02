@@ -21,20 +21,20 @@ class EStatusChip extends StatelessWidget {
   final bool uppercase;
 
   Color get _foreground => switch (tone) {
-    EStatusTone.accent => EColors.accentGlow,
-    EStatusTone.success => EColors.success,
-    EStatusTone.warning => EColors.warning,
-    EStatusTone.danger => EColors.danger,
-    EStatusTone.muted => EColors.textMuted,
-  };
+        EStatusTone.accent => EColors.accentGlow,
+        EStatusTone.success => EColors.success,
+        EStatusTone.warning => EColors.warning,
+        EStatusTone.danger => EColors.danger,
+        EStatusTone.muted => EColors.textMuted,
+      };
 
   Color get _background => switch (tone) {
-    EStatusTone.accent => EColors.accentSoft,
-    EStatusTone.success => EColors.successSoft,
-    EStatusTone.warning => EColors.warningSoft,
-    EStatusTone.danger => EColors.dangerSoft,
-    EStatusTone.muted => EColors.surfaceRaised,
-  };
+        EStatusTone.accent => EColors.accentSoft,
+        EStatusTone.success => EColors.successSoft,
+        EStatusTone.warning => EColors.warningSoft,
+        EStatusTone.danger => EColors.dangerSoft,
+        EStatusTone.muted => EColors.surfaceRaised,
+      };
 
   @override
   Widget build(BuildContext context) {

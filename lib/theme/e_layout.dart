@@ -30,7 +30,14 @@ abstract final class ELayout {
   /// Desktop sits farther from the eye — scale type/icons up on macOS.
   static double get typeScale => Platform.isMacOS ? 1.25 : 1.0;
 
+  /// Large hero / detail icon tile.
   static double get iconTile => Platform.isMacOS ? 88.0 : 72.0;
+
+  /// Dense list-row leading icon beside the title.
+  static double get listRowIcon => Platform.isMacOS ? 52.0 : 44.0;
+
+  /// Preferred width for icon+title leading columns.
+  static double get listRowLeadingWidth => Platform.isMacOS ? 200.0 : 168.0;
 
   static double typeSize(double phoneSize) => phoneSize * typeScale;
 

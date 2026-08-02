@@ -8,7 +8,9 @@ export 'theme/e_motion.dart';
 export 'theme/e_text.dart';
 export 'theme/e_theme.dart';
 
+export 'chrome/e_action_cluster.dart';
 export 'chrome/e_filter_chip.dart';
+export 'chrome/e_list_row.dart';
 export 'chrome/e_scaffold_shell.dart';
 export 'chrome/e_segmented_control.dart';
 export 'chrome/e_side_panel.dart';
