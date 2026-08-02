@@ -33,13 +33,14 @@ class ESegmentedControl extends StatelessWidget {
       padding: const EdgeInsets.all(ELayout.spaceXs),
       borderRadius: ELayout.borderRadiusLg,
       child: Row(
-        mainAxisSize: MainAxisSize.min,
         children: [
           for (var index = 0; index < segments.length; index++)
-            _SegmentButton(
-              segment: segments[index],
-              selected: selectedIndex == index,
-              onTap: () => onSelected(index),
+            Expanded(
+              child: _SegmentButton(
+                segment: segments[index],
+                selected: selectedIndex == index,
+                onTap: () => onSelected(index),
+              ),
             ),
         ],
       ),
@@ -68,7 +69,8 @@ class _SegmentButton extends StatelessWidget {
         child: AnimatedContainer(
           duration: EMotion.standard,
           curve: EMotion.curve,
-          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
           decoration: BoxDecoration(
             color: selected
                 ? EColors.accent.withValues(alpha: 0.22)
@@ -76,7 +78,7 @@ class _SegmentButton extends StatelessWidget {
             borderRadius: ELayout.borderRadiusMd,
           ),
           child: Row(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
                 segment.icon,
@@ -84,10 +86,14 @@ class _SegmentButton extends StatelessWidget {
                 color: selected ? EColors.accentGlow : EColors.textMuted,
               ),
               const SizedBox(width: ELayout.spaceSm),
-              Text(
-                segment.label,
-                style: EText.section.copyWith(
-                  color: selected ? EColors.textPrimary : EColors.textMuted,
+              Flexible(
+                child: Text(
+                  segment.label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: EText.section.copyWith(
+                    color: selected ? EColors.textPrimary : EColors.textMuted,
+                  ),
                 ),
               ),
             ],
@@ -111,8 +117,8 @@ class EFrostedBottomBar extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 10, 24, 12),
-          child: Center(heightFactor: 1, child: child),
+          padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+          child: child,
         ),
       ),
     );
