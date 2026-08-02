@@ -1,0 +1,18 @@
+# Dart/Flutter
+.dart_tool/
+.packages
+.flutter-plugins-dependencies
+pubspec.lock
+build/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# macOS
+.DS_Store
+
+# Local phone_deploy / deploy.rb fingerprints
+.deploy_hash
+.deploy_*_hash
