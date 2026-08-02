@@ -22,7 +22,7 @@ class LogConsole extends StatelessWidget {
   Widget build(BuildContext context) {
     final console = ESurface(
       kind: ESurfaceKind.inset,
-      borderRadius: ELayout.borderRadius(ELayout.radiusSm),
+      borderRadius: ELayout.borderRadiusSm,
       child: Scrollbar(
         controller: controller,
         child: SingleChildScrollView(

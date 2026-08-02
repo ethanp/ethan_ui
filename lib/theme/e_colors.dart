@@ -44,39 +44,26 @@ abstract final class EColors {
   static const scaffoldGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [
-      Color(0xFF151A22),
-      background,
-      Color(0xFF080A0D),
-    ],
+    colors: [Color(0xFF151A22), background, Color(0xFF080A0D)],
     stops: [0.0, 0.42, 1.0],
   );
 
   static const ambientGlowGradient = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [
-      Color(0x402563EB),
-      Color(0x000B0D10),
-    ],
+    colors: [Color(0x402563EB), Color(0x000B0D10)],
   );
 
   static const metalPanelGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [
-      Color(0xFF262D38),
-      Color(0xFF171C24),
-    ],
+    colors: [Color(0xFF262D38), Color(0xFF171C24)],
   );
 
   static const metalRowGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [
-      Color(0xFF222833),
-      Color(0xFF151A21),
-    ],
+    colors: [Color(0xFF222833), Color(0xFF151A21)],
   );
 
   static LinearGradient tintedMetalGradient(Color accent) {

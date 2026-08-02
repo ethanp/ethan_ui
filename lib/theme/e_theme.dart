@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'e_colors.dart';
+import 'e_input.dart';
 import 'e_layout.dart';
 import 'e_text.dart';
 
@@ -29,6 +30,14 @@ abstract final class ETheme {
       dividerColor: EColors.border,
       splashFactory: InkSparkle.splashFactory,
       textTheme: EText.textTheme,
+      inputDecorationTheme: const InputDecorationTheme(
+        filled: true,
+        fillColor: EColors.surface,
+        contentPadding: EdgeInsets.all(ELayout.spaceMd),
+        border: EInput.outlineSm,
+        enabledBorder: EInput.outlineSm,
+        focusedBorder: EInput.outlineSmFocused,
+      ),
       appBarTheme: AppBarTheme(
         elevation: 0,
         scrolledUnderElevation: 0,
@@ -43,9 +52,9 @@ abstract final class ETheme {
         color: EColors.surface,
         elevation: 0,
         margin: EdgeInsets.zero,
-        shape: RoundedRectangleBorder(
-          borderRadius: ELayout.borderRadius(ELayout.radiusMd),
-          side: const BorderSide(color: EColors.border),
+        shape: const RoundedRectangleBorder(
+          borderRadius: ELayout.borderRadiusMd,
+          side: BorderSide(color: EColors.border),
         ),
       ),
       filledButtonTheme: FilledButtonThemeData(
@@ -55,8 +64,8 @@ abstract final class ETheme {
           disabledBackgroundColor: EColors.surfaceRaised,
           disabledForegroundColor: EColors.textMuted,
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: ELayout.borderRadius(ELayout.radiusSm),
+          shape: const RoundedRectangleBorder(
+            borderRadius: ELayout.borderRadiusSm,
           ),
           textStyle: EText.section,
         ),
@@ -67,8 +76,8 @@ abstract final class ETheme {
           disabledForegroundColor: EColors.textMuted,
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
           side: const BorderSide(color: EColors.borderStrong),
-          shape: RoundedRectangleBorder(
-            borderRadius: ELayout.borderRadius(ELayout.radiusSm),
+          shape: const RoundedRectangleBorder(
+            borderRadius: ELayout.borderRadiusSm,
           ),
           textStyle: EText.section,
         ),
@@ -101,18 +110,18 @@ abstract final class ETheme {
         backgroundColor: EColors.surfaceRaised,
         contentTextStyle: EText.body.copyWith(color: EColors.textPrimary),
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: ELayout.borderRadius(ELayout.radiusSm),
-          side: const BorderSide(color: EColors.border),
+        shape: const RoundedRectangleBorder(
+          borderRadius: ELayout.borderRadiusSm,
+          side: BorderSide(color: EColors.border),
         ),
       ),
       dialogTheme: DialogThemeData(
         backgroundColor: EColors.surface,
         titleTextStyle: EText.section,
         contentTextStyle: EText.body,
-        shape: RoundedRectangleBorder(
-          borderRadius: ELayout.borderRadius(ELayout.radiusLg),
-          side: const BorderSide(color: EColors.border),
+        shape: const RoundedRectangleBorder(
+          borderRadius: ELayout.borderRadiusLg,
+          side: BorderSide(color: EColors.border),
         ),
       ),
       progressIndicatorTheme: const ProgressIndicatorThemeData(
@@ -123,6 +132,22 @@ abstract final class ETheme {
         color: EColors.border,
         thickness: 1,
         space: 1,
+      ),
+      chipTheme: ChipThemeData(
+        backgroundColor: EColors.surfaceRaised,
+        selectedColor: EColors.accentSoft,
+        disabledColor: EColors.surface,
+        deleteIconColor: EColors.textMuted,
+        labelStyle: EText.caption.copyWith(color: EColors.textSecondary),
+        secondaryLabelStyle:
+            EText.caption.copyWith(color: EColors.accentGlow),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+        shape: const RoundedRectangleBorder(
+          borderRadius: ELayout.borderRadiusSm,
+          side: BorderSide(color: EColors.border),
+        ),
+        side: const BorderSide(color: EColors.border),
+        brightness: Brightness.dark,
       ),
     );
 

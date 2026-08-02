@@ -44,7 +44,8 @@ class ESurface extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final radius = borderRadius ??
+    final radius =
+        borderRadius ??
         ELayout.borderRadius(switch (kind) {
           ESurfaceKind.panel => ELayout.radiusLg,
           ESurfaceKind.row => ELayout.radiusXl,
@@ -67,8 +68,7 @@ class ESurface extends StatelessWidget {
         onTap: onTap,
         borderRadius: radius,
         splashColor: (accent ?? EColors.accentGlow).withValues(alpha: 0.16),
-        highlightColor:
-            (accent ?? EColors.accentGlow).withValues(alpha: 0.07),
+        highlightColor: (accent ?? EColors.accentGlow).withValues(alpha: 0.07),
         child: Ink(decoration: decoration, child: content),
       ),
     );
@@ -79,8 +79,9 @@ class ESurface extends StatelessWidget {
     final borderColor = attention
         ? attentionColor.withValues(alpha: 0.4)
         : switch (kind) {
-            ESurfaceKind.tinted =>
-              (accent ?? EColors.accentGlow).withValues(alpha: 0.38),
+            ESurfaceKind.tinted => (accent ?? EColors.accentGlow).withValues(
+              alpha: 0.38,
+            ),
             ESurfaceKind.inset => EColors.border,
             _ => EColors.border.withValues(alpha: 0.95),
           };
@@ -90,8 +91,9 @@ class ESurface extends StatelessWidget {
         ESurfaceKind.panel => EColors.metalPanelGradient,
         ESurfaceKind.row => EColors.metalRowGradient,
         ESurfaceKind.inset => null,
-        ESurfaceKind.tinted =>
-          EColors.tintedMetalGradient(accent ?? EColors.accent),
+        ESurfaceKind.tinted => EColors.tintedMetalGradient(
+          accent ?? EColors.accent,
+        ),
       },
       color: kind == ESurfaceKind.inset ? EColors.surfaceInset : null,
       borderRadius: radius,
@@ -122,11 +124,7 @@ enum EFrostEdge { top, bottom, none }
 
 /// Frosted translucent fill for chrome (app bar, bottom strip).
 class EFrostedFill extends StatelessWidget {
-  const EFrostedFill({
-    super.key,
-    this.child,
-    this.edge = EFrostEdge.top,
-  });
+  const EFrostedFill({super.key, this.child, this.edge = EFrostEdge.top});
 
   final Widget? child;
   final EFrostEdge edge;
@@ -135,11 +133,11 @@ class EFrostedFill extends StatelessWidget {
   Widget build(BuildContext context) {
     final border = switch (edge) {
       EFrostEdge.top => const Border(
-          bottom: BorderSide(color: EColors.frostBorder),
-        ),
+        bottom: BorderSide(color: EColors.frostBorder),
+      ),
       EFrostEdge.bottom => const Border(
-          top: BorderSide(color: EColors.frostBorder),
-        ),
+        top: BorderSide(color: EColors.frostBorder),
+      ),
       EFrostEdge.none => null,
     };
 
@@ -147,10 +145,7 @@ class EFrostedFill extends StatelessWidget {
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
         child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: EColors.frostFill,
-            border: border,
-          ),
+          decoration: BoxDecoration(color: EColors.frostFill, border: border),
           child: child ?? const SizedBox.expand(),
         ),
       ),

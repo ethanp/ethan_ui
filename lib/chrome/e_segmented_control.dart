@@ -7,10 +7,7 @@ import '../theme/e_text.dart';
 import 'e_surface.dart';
 
 class ESegment {
-  const ESegment({
-    required this.icon,
-    required this.label,
-  });
+  const ESegment({required this.icon, required this.label});
 
   final IconData icon;
   final String label;
@@ -34,7 +31,7 @@ class ESegmentedControl extends StatelessWidget {
     return ESurface(
       kind: ESurfaceKind.inset,
       padding: const EdgeInsets.all(ELayout.spaceXs),
-      borderRadius: ELayout.borderRadius(ELayout.radiusLg),
+      borderRadius: ELayout.borderRadiusLg,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -67,7 +64,7 @@ class _SegmentButton extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: ELayout.borderRadius(ELayout.radiusMd),
+        borderRadius: ELayout.borderRadiusMd,
         child: AnimatedContainer(
           duration: EMotion.standard,
           curve: EMotion.curve,
@@ -76,7 +73,7 @@ class _SegmentButton extends StatelessWidget {
             color: selected
                 ? EColors.accent.withValues(alpha: 0.22)
                 : Colors.transparent,
-            borderRadius: ELayout.borderRadius(ELayout.radiusMd),
+            borderRadius: ELayout.borderRadiusMd,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -90,9 +87,7 @@ class _SegmentButton extends StatelessWidget {
               Text(
                 segment.label,
                 style: EText.section.copyWith(
-                  color: selected
-                      ? EColors.textPrimary
-                      : EColors.textMuted,
+                  color: selected ? EColors.textPrimary : EColors.textMuted,
                 ),
               ),
             ],
@@ -105,10 +100,7 @@ class _SegmentButton extends StatelessWidget {
 
 /// Frosted bottom chrome wrapping a centered [ESegmentedControl].
 class EFrostedBottomBar extends StatelessWidget {
-  const EFrostedBottomBar({
-    super.key,
-    required this.child,
-  });
+  const EFrostedBottomBar({super.key, required this.child});
 
   final Widget child;
 

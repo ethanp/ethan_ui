@@ -28,15 +28,11 @@ class EScaffoldShell extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: EColors.background,
-      appBar: appBar == null
-          ? null
-          : _FrostedPreferredSize(child: appBar!),
+      appBar: appBar == null ? null : _FrostedPreferredSize(child: appBar!),
       floatingActionButton: floatingActionButton,
       bottomNavigationBar: bottomBar,
       body: DecoratedBox(
-        decoration: const BoxDecoration(
-          gradient: EColors.scaffoldGradient,
-        ),
+        decoration: const BoxDecoration(gradient: EColors.scaffoldGradient),
         child: Stack(
           fit: StackFit.expand,
           children: [
@@ -54,9 +50,17 @@ class EScaffoldShell extends StatelessWidget {
             ),
             Align(
               alignment: Alignment.topCenter,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: contentMaxWidth),
-                child: body,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: contentMaxWidth,
+                      minHeight: constraints.maxHeight,
+                      maxHeight: constraints.maxHeight,
+                    ),
+                    child: body,
+                  );
+                },
               ),
             ),
           ],
@@ -81,10 +85,7 @@ class _FrostedPreferredSize extends StatelessWidget
       height: preferredSize.height,
       child: Stack(
         fit: StackFit.expand,
-        children: [
-          const EFrostedFill(),
-          child,
-        ],
+        children: [const EFrostedFill(), child],
       ),
     );
   }

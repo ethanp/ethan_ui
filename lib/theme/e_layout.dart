@@ -10,11 +10,20 @@ abstract final class ELayout {
   static const radiusXl = 20.0;
   static const radiusPill = 999.0;
 
+  static const borderRadiusSm = BorderRadius.all(Radius.circular(radiusSm));
+  static const borderRadiusMd = BorderRadius.all(Radius.circular(radiusMd));
+  static const borderRadiusLg = BorderRadius.all(Radius.circular(radiusLg));
+  static const borderRadiusXl = BorderRadius.all(Radius.circular(radiusXl));
+  static const borderRadiusPill = BorderRadius.all(Radius.circular(radiusPill));
+
   static const spaceXs = 4.0;
   static const spaceSm = 8.0;
   static const spaceMd = 12.0;
   static const spaceLg = 16.0;
   static const spaceXl = 24.0;
+
+  /// Default height for compact desktop toolbar controls.
+  static const toolbarControlHeight = 36.0;
 
   static const contentMaxWidth = 920.0;
 
