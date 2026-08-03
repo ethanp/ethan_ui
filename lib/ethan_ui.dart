@@ -9,6 +9,7 @@ export 'theme/e_text.dart';
 export 'theme/e_theme.dart';
 
 export 'chrome/e_action_cluster.dart';
+export 'chrome/e_app_header.dart';
 export 'chrome/e_filter_chip.dart';
 export 'chrome/e_list_row.dart';
 export 'chrome/e_scaffold_shell.dart';

@@ -27,6 +27,9 @@ abstract final class ELayout {
 
   static const contentMaxWidth = 920.0;
 
+  /// Comfortable width for identity + status rows (history, settings lists).
+  static const feedContentMaxWidth = 560.0;
+
   /// Desktop sits farther from the eye — scale type/icons up on macOS.
   static double get typeScale => Platform.isMacOS ? 1.25 : 1.0;
 
