@@ -1,8 +1,29 @@
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/material.dart';
 
 import '../chrome/e_surface.dart';
+import '../theme/e_colors.dart';
 import '../theme/e_layout.dart';
 import '../theme/e_text.dart';
+
+/// Line-level color for matching [LogConsole] log lines.
+class LogConsoleHighlight {
+  const LogConsoleHighlight({
+    required this.pattern,
+    required this.color,
+    this.fontWeight = FontWeight.w600,
+  });
+
+  final Pattern pattern;
+  final Color color;
+  final FontWeight fontWeight;
+
+  LogLineHighlight toLogLineHighlight() => LogLineHighlight(
+        pattern: pattern,
+        color: color,
+        fontWeight: fontWeight,
+      );
+}
 
 class LogConsole extends StatelessWidget {
   const LogConsole({
@@ -11,29 +32,31 @@ class LogConsole extends StatelessWidget {
     this.controller,
     this.maxHeight,
     this.emptyMessage = '(no log yet)',
+    this.highlights = const [],
   });
 
   final String log;
   final ScrollController? controller;
   final double? maxHeight;
   final String emptyMessage;
+  final List<LogConsoleHighlight> highlights;
 
   @override
   Widget build(BuildContext context) {
     final console = ESurface(
       kind: ESurfaceKind.inset,
       borderRadius: ELayout.borderRadiusSm,
-      child: Scrollbar(
+      child: LogTextView(
+        log: log,
         controller: controller,
-        child: SingleChildScrollView(
-          controller: controller,
-          reverse: controller == null,
-          padding: const EdgeInsets.all(ELayout.spaceMd),
-          child: SelectableText(
-            log.isEmpty ? emptyMessage : log,
-            style: EText.mono,
-          ),
-        ),
+        emptyMessage: emptyMessage,
+        highlights: [
+          for (final highlight in highlights) highlight.toLogLineHighlight(),
+        ],
+        padding: const EdgeInsets.all(ELayout.spaceMd),
+        textStyle: EText.mono,
+        controlColor: EColors.textMuted,
+        controlActiveColor: EColors.accentGlow,
       ),
     );
 

@@ -353,29 +353,13 @@ class _StatusEdge extends StatelessWidget {
   final String label;
   final EStatusTone tone;
 
-  Color get _foreground => switch (tone) {
-        EStatusTone.accent => EColors.accentGlow,
-        EStatusTone.success => EColors.success,
-        EStatusTone.warning => EColors.warning,
-        EStatusTone.danger => EColors.danger,
-        EStatusTone.muted => EColors.textMuted,
-      };
-
-  Color get _background => switch (tone) {
-        EStatusTone.accent => EColors.accentSoft,
-        EStatusTone.success => EColors.successSoft,
-        EStatusTone.warning => EColors.warningSoft,
-        EStatusTone.danger => EColors.dangerSoft,
-        EStatusTone.muted => EColors.surfaceRaised,
-      };
-
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: _background.withValues(alpha: 0.95),
+        color: tone.background.withValues(alpha: 0.95),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
-        border: Border.all(color: _foreground.withValues(alpha: 0.4)),
+        border: Border.all(color: tone.foreground.withValues(alpha: 0.4)),
       ),
       child: SizedBox(
         height: _ClusterChrome.statusEdgeHeight,
@@ -383,7 +367,7 @@ class _StatusEdge extends StatelessWidget {
           child: Text(
             label,
             style: EText.label.copyWith(
-              color: _foreground,
+              color: tone.foreground,
               fontSize: ELayout.typeSize(9),
               letterSpacing: 0.6,
               height: 1.0,

@@ -14,17 +14,25 @@ class ESegment {
 }
 
 /// Compact frosted segmented control for companion chrome.
+///
+/// When [expand] is true (default), segments share the parent width equally —
+/// use in bottom bars. When false, the control sizes to its labels.
 class ESegmentedControl extends StatelessWidget {
   const ESegmentedControl({
     super.key,
     required this.segments,
     required this.selectedIndex,
     required this.onSelected,
+    this.expand = true,
   });
 
   final List<ESegment> segments;
   final int selectedIndex;
   final ValueChanged<int> onSelected;
+
+  /// If true, segments expand equally to fill the parent. If false, each
+  /// segment sizes to its icon + label.
+  final bool expand;
 
   @override
   Widget build(BuildContext context) {
@@ -33,15 +41,25 @@ class ESegmentedControl extends StatelessWidget {
       padding: const EdgeInsets.all(ELayout.spaceXs),
       borderRadius: ELayout.borderRadiusLg,
       child: Row(
+        mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
         children: [
           for (var index = 0; index < segments.length; index++)
-            Expanded(
-              child: _SegmentButton(
+            if (expand)
+              Expanded(
+                child: _SegmentButton(
+                  segment: segments[index],
+                  selected: selectedIndex == index,
+                  expand: true,
+                  onTap: () => onSelected(index),
+                ),
+              )
+            else
+              _SegmentButton(
                 segment: segments[index],
                 selected: selectedIndex == index,
+                expand: false,
                 onTap: () => onSelected(index),
               ),
-            ),
         ],
       ),
     );
@@ -52,15 +70,27 @@ class _SegmentButton extends StatelessWidget {
   const _SegmentButton({
     required this.segment,
     required this.selected,
+    required this.expand,
     required this.onTap,
   });
 
   final ESegment segment;
   final bool selected;
+  final bool expand;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    final label = Text(
+      segment.label,
+      maxLines: 1,
+      softWrap: false,
+      overflow: expand ? TextOverflow.ellipsis : TextOverflow.visible,
+      style: EText.section.copyWith(
+        color: selected ? EColors.textPrimary : EColors.textMuted,
+      ),
+    );
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -69,7 +99,7 @@ class _SegmentButton extends StatelessWidget {
         child: AnimatedContainer(
           duration: EMotion.standard,
           curve: EMotion.curve,
-          width: double.infinity,
+          width: expand ? double.infinity : null,
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
           decoration: BoxDecoration(
             color: selected
@@ -78,6 +108,7 @@ class _SegmentButton extends StatelessWidget {
             borderRadius: ELayout.borderRadiusMd,
           ),
           child: Row(
+            mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
@@ -86,16 +117,7 @@ class _SegmentButton extends StatelessWidget {
                 color: selected ? EColors.accentGlow : EColors.textMuted,
               ),
               const SizedBox(width: ELayout.spaceSm),
-              Flexible(
-                child: Text(
-                  segment.label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: EText.section.copyWith(
-                    color: selected ? EColors.textPrimary : EColors.textMuted,
-                  ),
-                ),
-              ),
+              if (expand) Flexible(child: label) else label,
             ],
           ),
         ),

@@ -125,47 +125,59 @@ class ETintedAction extends StatelessWidget {
 
   Widget _compactBody() {
     final showSubtitle = subtitle != null && subtitle!.isNotEmpty;
+    final labelColumn = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          title,
+          style: EText.label.copyWith(
+            color: accent,
+            letterSpacing: 0.2,
+            height: 1.15,
+          ),
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
+        ),
+        if (showSubtitle)
+          Text(
+            subtitle!,
+            style: EText.caption.copyWith(
+              color: accent.withValues(alpha: 0.62),
+              fontSize: ELayout.typeSize(12),
+              height: 1.15,
+            ),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
+      ],
+    );
+
     return SizedBox(
       height: 44,
-      child: Row(
-        children: [
-          Icon(icon, size: 16, color: accent),
-          const SizedBox(width: ELayout.spaceSm),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  title,
-                  style: EText.label.copyWith(
-                    color: accent,
-                    letterSpacing: 0.2,
-                    height: 1.15,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                ),
-                if (showSubtitle)
-                  Text(
-                    subtitle!,
-                    style: EText.caption.copyWith(
-                      color: accent.withValues(alpha: 0.62),
-                      fontSize: ELayout.typeSize(12),
-                      height: 1.15,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // Expanded requires a bounded max width; callers sometimes pass
+          // unbounded (e.g. Wrap / loose parents).
+          final label = constraints.maxWidth.isFinite
+              ? Expanded(child: labelColumn)
+              : labelColumn;
+          return Row(
+            mainAxisSize: constraints.maxWidth.isFinite
+                ? MainAxisSize.max
+                : MainAxisSize.min,
+            children: [
+              Icon(icon, size: 16, color: accent),
+              const SizedBox(width: ELayout.spaceSm),
+              label,
+              if (trailing != null) ...[
+                const SizedBox(width: ELayout.spaceXs),
+                trailing!,
               ],
-            ),
-          ),
-          if (trailing != null) ...[
-            const SizedBox(width: ELayout.spaceXs),
-            trailing!,
-          ],
-        ],
+            ],
+          );
+        },
       ),
     );
   }
