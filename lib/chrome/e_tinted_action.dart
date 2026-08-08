@@ -18,7 +18,8 @@ class ETintedAction extends StatelessWidget {
     this.chipTone,
     this.trailing,
     this.live = false,
-  }) : compact = false;
+  })  : compact = false,
+        iconOnly = false;
 
   /// Dense list-row plate (title + subtitle, no status chip hang).
   const ETintedAction.compact({
@@ -31,6 +32,23 @@ class ETintedAction extends StatelessWidget {
     this.trailing,
     this.live = false,
   })  : compact = true,
+        iconOnly = false,
+        chipLabel = null,
+        chipTone = null;
+
+  /// Slimmest plate for tight rows: just the icon; [title] (and [subtitle])
+  /// surface as a tooltip.
+  const ETintedAction.iconOnly({
+    super.key,
+    required this.accent,
+    required this.icon,
+    required this.title,
+    this.onTap,
+    this.subtitle,
+    this.live = false,
+  })  : compact = true,
+        iconOnly = true,
+        trailing = null,
         chipLabel = null,
         chipTone = null;
 
@@ -44,10 +62,11 @@ class ETintedAction extends StatelessWidget {
   final Widget? trailing;
   final bool live;
   final bool compact;
+  final bool iconOnly;
 
   @override
   Widget build(BuildContext context) {
-    return ESurface(
+    final plate = ESurface(
       kind: ESurfaceKind.tinted,
       accent: accent,
       attention: live,
@@ -56,7 +75,25 @@ class ETintedAction extends StatelessWidget {
         horizontal: compact ? 8 : 12,
         vertical: compact ? 6 : 12,
       ),
-      child: compact ? _compactBody() : _comfortableBody(),
+      child: iconOnly
+          ? _iconOnlyBody()
+          : compact
+              ? _compactBody()
+              : _comfortableBody(),
+    );
+    if (!iconOnly) return plate;
+    return Tooltip(
+      message: subtitle == null || subtitle!.isEmpty
+          ? title
+          : '$title · $subtitle',
+      child: plate,
+    );
+  }
+
+  Widget _iconOnlyBody() {
+    return SizedBox(
+      height: 44,
+      child: Center(child: Icon(icon, size: 16, color: accent)),
     );
   }
 
