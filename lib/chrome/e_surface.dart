@@ -62,11 +62,16 @@ class ESurface extends StatelessWidget {
       return DecoratedBox(decoration: decoration, child: content);
     }
 
+    final ShapeBorder roundedShape = RoundedRectangleBorder(
+      borderRadius: radius,
+    );
     return Material(
       color: Colors.transparent,
+      shape: roundedShape,
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
-        borderRadius: radius,
+        customBorder: roundedShape,
         splashColor: (accent ?? EColors.accentGlow).withValues(alpha: 0.16),
         highlightColor: (accent ?? EColors.accentGlow).withValues(alpha: 0.07),
         child: Ink(decoration: decoration, child: content),

@@ -33,6 +33,7 @@ class LogConsole extends StatelessWidget {
     this.maxHeight,
     this.emptyMessage = '(no log yet)',
     this.highlights = const [],
+    this.trimBeforeLastHighlight = false,
   });
 
   final String log;
@@ -40,6 +41,9 @@ class LogConsole extends StatelessWidget {
   final double? maxHeight;
   final String emptyMessage;
   final List<LogConsoleHighlight> highlights;
+
+  /// See [LogTextView.trimBeforeLastHighlight].
+  final bool trimBeforeLastHighlight;
 
   @override
   Widget build(BuildContext context) {
@@ -53,6 +57,7 @@ class LogConsole extends StatelessWidget {
         highlights: [
           for (final highlight in highlights) highlight.toLogLineHighlight(),
         ],
+        trimBeforeLastHighlight: trimBeforeLastHighlight,
         padding: const EdgeInsets.all(ELayout.spaceMd),
         textStyle: EText.mono,
         controlColor: EColors.textMuted,

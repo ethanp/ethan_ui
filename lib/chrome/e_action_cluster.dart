@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../theme/e_colors.dart';
@@ -14,6 +16,10 @@ abstract final class _ClusterChrome {
   static const statusEdgeHeight = 14.0;
   static const statusEdgeOverlap = 3.0;
   static const condensedMaxWidth = 92.0;
+  static const condensedIconSize = 14.0;
+  static const condensedGap = 2.0;
+  static const condensedTrailingIdeal = 24.0;
+  static const condensedTrailingMin = 14.0;
   static const railIconOnly = 28.0;
   static const railLabeled = 44.0;
   static const labeledRailMinClusterWidth = 168.0;
@@ -253,16 +259,23 @@ class _Cell extends StatelessWidget {
             builder: (context, constraints) {
               final condensed =
                   constraints.maxWidth <= _ClusterChrome.condensedMaxWidth;
+              final padH =
+                  condensed ? ELayout.spaceXs : _ClusterChrome.cellPadH;
               return Padding(
                 padding: EdgeInsets.symmetric(
-                  horizontal:
-                      condensed ? ELayout.spaceXs : _ClusterChrome.cellPadH,
+                  horizontal: padH,
                   vertical: _ClusterChrome.cellPadV,
                 ),
                 child: SizedBox(
                   height: _ClusterChrome.cellHeight,
                   child: condensed
-                      ? _condensed(cellAccent)
+                      ? _condensed(
+                          cellAccent,
+                          contentWidth: math.max(
+                            0.0,
+                            constraints.maxWidth - padH * 2,
+                          ),
+                        )
                       : _full(cellAccent),
                 ),
               );
@@ -317,13 +330,52 @@ class _Cell extends StatelessWidget {
     );
   }
 
-  Widget _condensed(Color cellAccent) {
+  Widget _condensed(Color cellAccent, {required double contentWidth}) {
+    if (contentWidth <= 0) return const SizedBox.shrink();
+
     final condensedLabel = cell.condensedLabel;
+    final hasLabel =
+        condensedLabel != null && condensedLabel.isNotEmpty;
+    final trailing = cell.trailing;
+    final icon = Icon(
+      cell.icon,
+      size: _ClusterChrome.condensedIconSize,
+      color: cellAccent,
+    );
+
+    // Non-flex children get the full max width (Flexible flex:0 included).
+    // Size trailing explicitly so Icon + gaps + trailing never exceed
+    // [contentWidth]; drop the label first when space is tight.
+    if (contentWidth < _ClusterChrome.condensedIconSize) {
+      return FittedBox(
+        fit: BoxFit.scaleDown,
+        alignment: Alignment.centerLeft,
+        child: icon,
+      );
+    }
+
+    var used = _ClusterChrome.condensedIconSize;
+    double? trailingWidth;
+    if (trailing != null) {
+      final availableForTrailing =
+          contentWidth - used - _ClusterChrome.condensedGap;
+      if (availableForTrailing >= _ClusterChrome.condensedTrailingMin) {
+        trailingWidth = math.min(
+          _ClusterChrome.condensedTrailingIdeal,
+          availableForTrailing,
+        );
+        used += _ClusterChrome.condensedGap + trailingWidth;
+      }
+    }
+    final showLabel =
+        hasLabel &&
+        contentWidth - used - _ClusterChrome.condensedGap >= 8;
+
     return Row(
       children: [
-        Icon(cell.icon, size: 14, color: cellAccent),
-        if (condensedLabel != null && condensedLabel.isNotEmpty) ...[
-          const SizedBox(width: 2),
+        icon,
+        if (showLabel) ...[
+          const SizedBox(width: _ClusterChrome.condensedGap),
           Expanded(
             child: Text(
               condensedLabel,
@@ -338,9 +390,16 @@ class _Cell extends StatelessWidget {
             ),
           ),
         ],
-        if (cell.trailing != null) ...[
-          const SizedBox(width: 2),
-          cell.trailing!,
+        if (trailingWidth != null) ...[
+          const SizedBox(width: _ClusterChrome.condensedGap),
+          SizedBox(
+            width: trailingWidth,
+            height: _ClusterChrome.condensedTrailingIdeal,
+            child: FittedBox(
+              fit: BoxFit.contain,
+              child: trailing,
+            ),
+          ),
         ],
       ],
     );
