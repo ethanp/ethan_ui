@@ -30,7 +30,7 @@ class ESurface extends StatelessWidget {
     this.padding,
     this.accent,
     this.attention = false,
-    this.onTap,
+    this.onActivated,
     this.borderRadius,
   });
 
@@ -39,7 +39,7 @@ class ESurface extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
   final Color? accent;
   final bool attention;
-  final VoidCallback? onTap;
+  final VoidCallback? onActivated;
   final BorderRadius? borderRadius;
 
   @override
@@ -58,7 +58,7 @@ class ESurface extends StatelessWidget {
         : Padding(padding: padding!, child: child);
     final decoration = _decoration(radius);
 
-    if (onTap == null) {
+    if (onActivated == null) {
       return DecoratedBox(decoration: decoration, child: content);
     }
 
@@ -70,7 +70,7 @@ class ESurface extends StatelessWidget {
       shape: roundedShape,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: onTap,
+        onTap: onActivated,
         customBorder: roundedShape,
         splashColor: (accent ?? EColors.accentGlow).withValues(alpha: 0.16),
         highlightColor: (accent ?? EColors.accentGlow).withValues(alpha: 0.07),

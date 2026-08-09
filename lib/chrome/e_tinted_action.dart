@@ -12,7 +12,7 @@ class ETintedAction extends StatelessWidget {
     required this.accent,
     required this.icon,
     required this.title,
-    this.onTap,
+    this.onActivated,
     this.subtitle,
     this.chipLabel,
     this.chipTone,
@@ -27,7 +27,7 @@ class ETintedAction extends StatelessWidget {
     required this.accent,
     required this.icon,
     required this.title,
-    this.onTap,
+    this.onActivated,
     this.subtitle,
     this.trailing,
     this.live = false,
@@ -43,7 +43,7 @@ class ETintedAction extends StatelessWidget {
     required this.accent,
     required this.icon,
     required this.title,
-    this.onTap,
+    this.onActivated,
     this.subtitle,
     this.live = false,
   })  : compact = true,
@@ -56,7 +56,7 @@ class ETintedAction extends StatelessWidget {
   final IconData icon;
   final String title;
   final String? subtitle;
-  final VoidCallback? onTap;
+  final VoidCallback? onActivated;
   final String? chipLabel;
   final EStatusTone? chipTone;
   final Widget? trailing;
@@ -70,7 +70,7 @@ class ETintedAction extends StatelessWidget {
       kind: ESurfaceKind.tinted,
       accent: accent,
       attention: live,
-      onTap: onTap,
+      onActivated: onActivated,
       padding: EdgeInsets.symmetric(
         horizontal: compact ? 8 : 12,
         vertical: compact ? 6 : 12,

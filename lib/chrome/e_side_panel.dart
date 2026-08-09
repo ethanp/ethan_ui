@@ -11,13 +11,13 @@ class ESidePanel extends StatelessWidget {
     super.key,
     required this.title,
     required this.child,
-    this.onClose,
+    this.onDismiss,
     this.width,
   });
 
   final String title;
   final Widget child;
-  final VoidCallback? onClose;
+  final VoidCallback? onDismiss;
 
   /// When null, the panel sizes to its child's intrinsic width.
   final double? width;
@@ -55,13 +55,13 @@ class ESidePanel extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(title.toUpperCase(), style: EText.label),
-          if (onClose != null)
+          if (onDismiss != null)
             IconButton(
               icon: const Icon(Icons.chevron_left, size: 18),
               color: EColors.textMuted,
               visualDensity: VisualDensity.compact,
               tooltip: 'Hide $title',
-              onPressed: onClose,
+              onPressed: onDismiss,
             ),
         ],
       ),

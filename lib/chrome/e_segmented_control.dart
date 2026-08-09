@@ -50,7 +50,7 @@ class ESegmentedControl extends StatelessWidget {
                   segment: segments[index],
                   selected: selectedIndex == index,
                   expand: true,
-                  onTap: () => onSelected(index),
+                  onActivated: () => onSelected(index),
                 ),
               )
             else
@@ -58,7 +58,7 @@ class ESegmentedControl extends StatelessWidget {
                 segment: segments[index],
                 selected: selectedIndex == index,
                 expand: false,
-                onTap: () => onSelected(index),
+                onActivated: () => onSelected(index),
               ),
         ],
       ),
@@ -71,13 +71,13 @@ class _SegmentButton extends StatelessWidget {
     required this.segment,
     required this.selected,
     required this.expand,
-    required this.onTap,
+    required this.onActivated,
   });
 
   final ESegment segment;
   final bool selected;
   final bool expand;
-  final VoidCallback onTap;
+  final VoidCallback onActivated;
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +94,7 @@ class _SegmentButton extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: onTap,
+        onTap: onActivated,
         borderRadius: ELayout.borderRadiusMd,
         child: AnimatedContainer(
           duration: EMotion.standard,

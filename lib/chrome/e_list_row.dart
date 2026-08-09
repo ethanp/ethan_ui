@@ -17,7 +17,7 @@ class EListRow extends StatelessWidget {
     required this.leading,
     required this.trailing,
     this.attention = false,
-    this.onTap,
+    this.onActivated,
     this.padding = const EdgeInsets.fromLTRB(14, 12, 14, 12),
     this.leadingWidth,
     this.gap = ELayout.spaceLg,
@@ -26,7 +26,7 @@ class EListRow extends StatelessWidget {
   final Widget leading;
   final Widget trailing;
   final bool attention;
-  final VoidCallback? onTap;
+  final VoidCallback? onActivated;
   final EdgeInsetsGeometry padding;
 
   /// When set, pins [leading] to a fixed width (e.g. [ELayout.listRowLeadingWidth]).
@@ -38,7 +38,7 @@ class EListRow extends StatelessWidget {
     return ESurface(
       kind: ESurfaceKind.row,
       attention: attention,
-      onTap: onTap,
+      onActivated: onActivated,
       padding: padding,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,

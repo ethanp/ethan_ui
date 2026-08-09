@@ -10,20 +10,20 @@ class EFilterChip extends StatelessWidget {
     required this.label,
     required this.color,
     required this.selected,
-    required this.onTap,
+    required this.onActivated,
     this.icon,
   });
 
   final String label;
   final Color color;
   final bool selected;
-  final VoidCallback onTap;
+  final VoidCallback onActivated;
   final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: onActivated,
       behavior: HitTestBehavior.opaque,
       child: Container(
         padding: const EdgeInsets.symmetric(

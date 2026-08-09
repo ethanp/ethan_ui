@@ -30,7 +30,7 @@ class EActionClusterCell {
   const EActionClusterCell({
     required this.icon,
     required this.title,
-    required this.onTap,
+    required this.onActivated,
     this.subtitle,
     this.condensedLabel,
     this.statusLabel,
@@ -41,7 +41,7 @@ class EActionClusterCell {
 
   final IconData icon;
   final String title;
-  final VoidCallback onTap;
+  final VoidCallback onActivated;
   final String? subtitle;
 
   /// Icon + this label when the cell is too narrow for title + subtitle.
@@ -252,7 +252,7 @@ class _Cell extends StatelessWidget {
       child: Tooltip(
         message: tooltip,
         child: InkWell(
-          onTap: cell.onTap,
+          onTap: cell.onActivated,
           splashColor: accent.withValues(alpha: 0.14),
           highlightColor: accent.withValues(alpha: 0.06),
           child: LayoutBuilder(
