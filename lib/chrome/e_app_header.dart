@@ -16,6 +16,8 @@ class EAppHeader extends StatelessWidget implements PreferredSizeWidget {
     required this.title,
     this.eyebrow,
     this.subtitle,
+    this.accent,
+    this.leading,
     this.actions = const [],
     this.height,
     this.automaticallyImplyLeading = true,
@@ -24,23 +26,32 @@ class EAppHeader extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final String? eyebrow;
   final String? subtitle;
+
+  /// Glow for the accent rail and eyebrow. Defaults to [EColors.accentGlow].
+  final Color? accent;
+
+  /// When set, replaces the auto-generated back button.
+  final Widget? leading;
+
   final List<Widget> actions;
 
   /// When null, height is derived from the title stack and action plate.
   final double? height;
   final bool automaticallyImplyLeading;
 
+  Color get _accent => accent ?? EColors.accentGlow;
+
   @override
   Size get preferredSize => Size.fromHeight(height ?? _contentHeight);
 
   double get _contentHeight {
-    const verticalPadding = ELayout.spaceSm * 2;
-    var stackHeight = ELayout.typeSize(22) * 1.1;
+    const verticalPadding = ELayout.spaceSm * 2 + 1; // + hairline
+    var stackHeight = ELayout.typeSize(25) * 1.05;
     if (eyebrow != null) {
-      stackHeight += ELayout.typeSize(11) * 1.2 + 2;
+      stackHeight += ELayout.typeSize(11) * 1.2 + 3;
     }
     if (subtitle != null) {
-      stackHeight += ELayout.typeSize(12) * 1.1 + 2;
+      stackHeight += ELayout.typeSize(12) * 1.15 + 4;
     }
     // Compact tinted actions are 44px tall — keep the bar at least that.
     // Ceil + slack: glyph metrics often exceed style.height * fontSize by a
@@ -51,37 +62,50 @@ class EAppHeader extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final route = ModalRoute.of(context);
-    final showBack =
-        automaticallyImplyLeading && (route?.impliesAppBarDismissal ?? false);
+    final showBack = leading == null &&
+        automaticallyImplyLeading &&
+        (route?.impliesAppBarDismissal ?? false);
 
     // Scaffold already applies the top MediaQuery inset for primary app bars.
     // Do not wrap in SafeArea — that shrinks the fixed preferred height and
     // overflows the title stack (especially with eyebrow + subtitle on macOS).
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        ELayout.spaceLg,
-        ELayout.spaceSm,
-        ELayout.spaceMd,
-        ELayout.spaceSm,
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: EColors.border.withValues(alpha: 0.55),
+          ),
+        ),
       ),
-      child: Row(
-        children: [
-          if (showBack) ...[
-            IconButton(
-              tooltip: 'Back',
-              onPressed: () => Navigator.maybePop(context),
-              icon: const Icon(Icons.arrow_back_rounded),
-            ),
-            const SizedBox(width: ELayout.spaceXs),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          ELayout.spaceLg,
+          ELayout.spaceSm,
+          ELayout.spaceMd,
+          ELayout.spaceSm,
+        ),
+        child: Row(
+          children: [
+            if (leading != null) ...[
+              leading!,
+              const SizedBox(width: ELayout.spaceSm),
+            ] else if (showBack) ...[
+              IconButton(
+                tooltip: 'Back',
+                onPressed: () => Navigator.maybePop(context),
+                icon: const Icon(Icons.arrow_back_rounded),
+              ),
+              const SizedBox(width: ELayout.spaceXs),
+            ],
+            _HeaderAccentMark(accent: _accent),
+            const SizedBox(width: ELayout.spaceMd),
+            Expanded(child: _titleStack()),
+            for (final action in actions) ...[
+              const SizedBox(width: ELayout.spaceSm),
+              action,
+            ],
           ],
-          const _HeaderAccentMark(),
-          const SizedBox(width: ELayout.spaceMd),
-          Expanded(child: _titleStack()),
-          for (final action in actions) ...[
-            const SizedBox(width: ELayout.spaceSm),
-            action,
-          ],
-        ],
+        ),
       ),
     );
   }
@@ -98,31 +122,33 @@ class EAppHeader extends StatelessWidget implements PreferredSizeWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: EText.label.copyWith(
-              color: EColors.accentGlow,
-              letterSpacing: 1.1,
+              color: _accent,
+              letterSpacing: 1.4,
               fontSize: ELayout.typeSize(11),
             ),
           ),
-        if (eyebrow != null) const SizedBox(height: 2),
+        if (eyebrow != null) const SizedBox(height: 3),
         Text(
           title,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: EText.section.copyWith(
-            fontSize: ELayout.typeSize(22),
-            letterSpacing: -0.45,
-            height: 1.1,
+            fontSize: ELayout.typeSize(25),
+            letterSpacing: -0.6,
+            height: 1.05,
+            fontWeight: FontWeight.w600,
           ),
         ),
         if (subtitle != null) ...[
-          const SizedBox(height: 2),
+          const SizedBox(height: 4),
           Text(
             subtitle!,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: EText.caption.copyWith(
+              color: EColors.textMuted,
               fontSize: ELayout.typeSize(12),
-              height: 1.1,
+              height: 1.15,
             ),
           ),
         ],
@@ -132,13 +158,15 @@ class EAppHeader extends StatelessWidget implements PreferredSizeWidget {
 }
 
 class _HeaderAccentMark extends StatelessWidget {
-  const _HeaderAccentMark();
+  const _HeaderAccentMark({required this.accent});
+
+  final Color accent;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: 3,
-      height: 30,
+      height: 36,
       child: DecoratedBox(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(2),
@@ -146,15 +174,16 @@ class _HeaderAccentMark extends StatelessWidget {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              EColors.accentGlow,
-              EColors.accent.withValues(alpha: 0.4),
+              accent,
+              Color.lerp(accent, EColors.surface, 0.55)!
+                  .withValues(alpha: 0.35),
             ],
           ),
           boxShadow: [
             BoxShadow(
-              color: EColors.accentGlow.withValues(alpha: 0.4),
-              blurRadius: 10,
-              spreadRadius: 0.5,
+              color: accent.withValues(alpha: 0.28),
+              blurRadius: 7,
+              spreadRadius: 0,
             ),
           ],
         ),
