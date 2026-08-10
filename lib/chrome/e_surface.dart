@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 import '../theme/e_colors.dart';
@@ -22,6 +20,10 @@ enum ESurfaceKind {
 
 /// Shared brushed-metal surface. Domain UI should use this instead of
 /// hand-rolled gradients, borders, and shadows.
+///
+/// [ESurfaceKind.row] and [ESurfaceKind.tinted] stay flat (border + gradient
+/// only) so dense interactive lists stay cheap to repaint. Soft shadows are
+/// reserved for [ESurfaceKind.panel].
 class ESurface extends StatelessWidget {
   const ESurface({
     super.key,
@@ -103,31 +105,31 @@ class ESurface extends StatelessWidget {
       color: kind == ESurfaceKind.inset ? EColors.surfaceInset : null,
       borderRadius: radius,
       border: Border.all(color: borderColor),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black.withValues(alpha: 0.28),
-          blurRadius: kind == ESurfaceKind.inset ? 0 : 18,
-          offset: Offset(0, kind == ESurfaceKind.inset ? 0 : 8),
-        ),
-        if (attention)
-          BoxShadow(
-            color: attentionColor.withValues(alpha: 0.08),
-            blurRadius: 18,
-          ),
-        if (kind == ESurfaceKind.tinted)
-          BoxShadow(
-            color: (accent ?? EColors.accentGlow).withValues(alpha: 0.1),
-            blurRadius: 14,
-            offset: const Offset(0, 4),
-          ),
-      ],
+      // Soft shadows only on panels — row/tinted stay flat for list density.
+      boxShadow: kind == ESurfaceKind.panel
+          ? [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.28),
+                blurRadius: 18,
+                offset: const Offset(0, 8),
+              ),
+              if (attention)
+                BoxShadow(
+                  color: attentionColor.withValues(alpha: 0.08),
+                  blurRadius: 18,
+                ),
+            ]
+          : const [],
     );
   }
 }
 
 enum EFrostEdge { top, bottom, none }
 
-/// Frosted translucent fill for chrome (app bar, bottom strip).
+/// Frost chrome fill for app bars and bottom strips.
+///
+/// Uses an opaque frost color — not [BackdropFilter] — so scrolling lists
+/// underneath stay cheap to composite.
 class EFrostedFill extends StatelessWidget {
   const EFrostedFill({super.key, this.child, this.edge = EFrostEdge.top});
 
@@ -146,14 +148,9 @@ class EFrostedFill extends StatelessWidget {
       EFrostEdge.none => null,
     };
 
-    return ClipRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-        child: DecoratedBox(
-          decoration: BoxDecoration(color: EColors.frostFill, border: border),
-          child: child ?? const SizedBox.expand(),
-        ),
-      ),
+    return DecoratedBox(
+      decoration: BoxDecoration(color: EColors.frostFill, border: border),
+      child: child ?? const SizedBox.expand(),
     );
   }
 }

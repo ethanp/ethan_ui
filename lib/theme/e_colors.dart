@@ -66,14 +66,20 @@ abstract final class EColors {
     colors: [Color(0xFF222833), Color(0xFF151A21)],
   );
 
+  static final Map<Color, LinearGradient> _tintedMetalGradients = {};
+
+  /// Cached per [accent] so dense action plates do not re-lerp every build.
   static LinearGradient tintedMetalGradient(Color accent) {
-    return LinearGradient(
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-      colors: [
-        Color.lerp(accent, const Color(0xFF2A323E), 0.55)!,
-        Color.lerp(accent, const Color(0xFF151A21), 0.78)!,
-      ],
+    return _tintedMetalGradients.putIfAbsent(
+      accent,
+      () => LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Color.lerp(accent, const Color(0xFF2A323E), 0.55)!,
+          Color.lerp(accent, const Color(0xFF151A21), 0.78)!,
+        ],
+      ),
     );
   }
 }
