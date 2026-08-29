@@ -55,7 +55,7 @@ class EStatusChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       child: Text(
         uppercase ? label.toUpperCase() : label,
-        style: EText.label.copyWith(
+        style: EText.label.small.copyWith(
           color: tone.foreground,
           letterSpacing: uppercase ? 0.8 : 0.4,
         ),

@@ -124,7 +124,7 @@ class EAppHeader extends StatelessWidget implements PreferredSizeWidget {
             eyebrow!,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: EText.label.copyWith(
+            style: EText.label.small.copyWith(
               color: _accent,
               letterSpacing: 1.4,
               fontSize: ELayout.typeSize(11),

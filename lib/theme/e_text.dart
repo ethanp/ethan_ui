@@ -1,70 +1,38 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'e_colors.dart';
 import 'e_layout.dart';
 
-/// Typographic scale — IBM Plex Sans for UI, Plex Mono for machine readout.
-///
-/// Sizes are phone-baseline values scaled by [ELayout.typeScale] (larger on
-/// macOS). Prefer these styles over one-off `fontSize` overrides.
 abstract final class EText {
-  static String? get _sans => GoogleFonts.ibmPlexSans().fontFamily;
+  static String? get _sans {
+    if (kIsWeb) return null;
+    if (Platform.isIOS || Platform.isMacOS) return 'CupertinoSystemText';
+    return null;
+  }
+
+  static const _sansFallback = ['.AppleSystemUIFont', '.SF Pro Text'];
+
   static String? get _mono => GoogleFonts.ibmPlexMono().fontFamily;
 
   static double _size(double phoneSize) => ELayout.typeSize(phoneSize);
 
-  static TextStyle get title => TextStyle(
-    fontFamily: _sans,
-    fontSize: _size(28),
-    fontWeight: FontWeight.w600,
-    letterSpacing: -0.55,
-    color: EColors.textPrimary,
-    height: 1.15,
-  );
+  static const headline = _EHeadlineScale();
+  static const body = _EBodyScale();
+  static const label = _ELabelScale();
 
-  static TextStyle get projectName => TextStyle(
-    fontFamily: _sans,
-    fontSize: _size(20),
-    fontWeight: FontWeight.w600,
-    letterSpacing: -0.3,
-    color: EColors.textPrimary,
-    height: 1.2,
-  );
+  static TextStyle get title => headline.large;
 
-  static TextStyle get section => TextStyle(
-    fontFamily: _sans,
-    fontSize: _size(17),
-    fontWeight: FontWeight.w600,
-    letterSpacing: -0.15,
-    color: EColors.textPrimary,
-    height: 1.25,
-  );
+  static TextStyle get projectName => headline.small;
 
-  static TextStyle get body => TextStyle(
-    fontFamily: _sans,
-    fontSize: _size(16),
-    fontWeight: FontWeight.w400,
-    color: EColors.textSecondary,
-    height: 1.45,
-  );
+  static TextStyle get section => label.large;
 
-  static TextStyle get caption => TextStyle(
-    fontFamily: _sans,
-    fontSize: _size(14),
-    fontWeight: FontWeight.w400,
-    color: EColors.textMuted,
-    height: 1.35,
-  );
+  static TextStyle get caption => body.small.tertiary;
 
-  static TextStyle get label => TextStyle(
-    fontFamily: _sans,
-    fontSize: _size(12),
-    fontWeight: FontWeight.w600,
-    letterSpacing: 0.75,
-    color: EColors.textMuted,
-    height: 1.2,
-  );
+  static TextStyle get error => body.small.copyWith(color: EColors.danger);
 
   static TextStyle get mono => TextStyle(
     fontFamily: _mono,
@@ -82,11 +50,105 @@ abstract final class EText {
     height: 1.35,
   );
 
+  static TextStyle _sansStyle({
+    required FontWeight fontWeight,
+    required Color color,
+    required double height,
+    required double letterSpacing,
+  }) => TextStyle(
+    fontFamily: _sans,
+    fontFamilyFallback: _sans == null ? null : _sansFallback,
+    fontWeight: fontWeight,
+    color: color,
+    height: height,
+    letterSpacing: letterSpacing,
+  );
+
   static TextTheme get textTheme => TextTheme(
     titleLarge: title,
     titleMedium: section,
-    bodyMedium: body,
+    bodyMedium: body.medium,
     bodySmall: caption,
-    labelSmall: label,
+    labelSmall: label.small,
   );
+}
+
+class _EHeadlineScale {
+  const _EHeadlineScale();
+
+  TextStyle get _base => EText._sansStyle(
+    fontWeight: FontWeight.w600,
+    color: EColors.textPrimary,
+    height: 1.3,
+    letterSpacing: -0.3,
+  );
+
+  TextStyle get large => _base.copyWith(
+    fontSize: EText._size(32),
+    fontWeight: FontWeight.w700,
+    height: 1.2,
+    letterSpacing: -0.55,
+  );
+
+  TextStyle get medium => _base.copyWith(fontSize: EText._size(24));
+
+  TextStyle get small =>
+      _base.copyWith(fontSize: EText._size(20), height: 1.4, letterSpacing: -0.2);
+}
+
+class _EBodyScale {
+  const _EBodyScale();
+
+  TextStyle get _base => EText._sansStyle(
+    fontWeight: FontWeight.w400,
+    color: EColors.textPrimary,
+    height: 1.5,
+    letterSpacing: 0.1,
+  );
+
+  TextStyle get large => _base.copyWith(fontSize: EText._size(18));
+
+  TextStyle get medium => _base.copyWith(fontSize: EText._size(16));
+
+  TextStyle get small =>
+      _base.copyWith(fontSize: EText._size(14), color: EColors.textSecondary);
+
+  TextStyle get tiny => _base.copyWith(fontSize: EText._size(10));
+}
+
+class _ELabelScale {
+  const _ELabelScale();
+
+  TextStyle get _base => EText._sansStyle(
+    fontWeight: FontWeight.w500,
+    color: EColors.textPrimary,
+    height: 1.4,
+    letterSpacing: 0.1,
+  );
+
+  TextStyle get large =>
+      _base.copyWith(fontSize: EText._size(16), fontWeight: FontWeight.w600);
+
+  TextStyle get medium => _base.copyWith(fontSize: EText._size(14));
+
+  TextStyle get small =>
+      _base.copyWith(fontSize: EText._size(12), color: EColors.textSecondary);
+}
+
+extension ETextStyleModifiers on TextStyle {
+  TextStyle withColor(Color textColor) => copyWith(color: textColor);
+  TextStyle size(double fontSize) => copyWith(fontSize: fontSize);
+  TextStyle weight(FontWeight fontWeight) => copyWith(fontWeight: fontWeight);
+
+  TextStyle get primary => withColor(EColors.textPrimary);
+  TextStyle get secondary => withColor(EColors.textSecondary);
+  TextStyle get tertiary => withColor(EColors.textTertiary);
+  TextStyle get quaternary => withColor(EColors.textMuted);
+  TextStyle get muted => withColor(EColors.textMuted);
+  TextStyle get accent => withColor(EColors.accent);
+  TextStyle get danger => withColor(EColors.danger);
+  TextStyle get white => withColor(Colors.white);
+
+  TextStyle get semibold => weight(FontWeight.w600);
+  TextStyle get bold => weight(FontWeight.bold);
 }

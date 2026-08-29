@@ -300,7 +300,7 @@ class _Cell extends StatelessWidget {
             children: [
               Text(
                 cell.title,
-                style: EText.label.copyWith(
+                style: EText.label.small.copyWith(
                   color: cellAccent,
                   letterSpacing: 0.2,
                   height: 1.15,
@@ -379,7 +379,7 @@ class _Cell extends StatelessWidget {
           Expanded(
             child: Text(
               condensedLabel,
-              style: EText.label.copyWith(
+              style: EText.label.small.copyWith(
                 color: cellAccent,
                 letterSpacing: 0.05,
                 height: 1.1,
@@ -425,7 +425,7 @@ class _StatusEdge extends StatelessWidget {
         child: Center(
           child: Text(
             label,
-            style: EText.label.copyWith(
+            style: EText.label.small.copyWith(
               color: tone.foreground,
               fontSize: ELayout.typeSize(9),
               letterSpacing: 0.6,

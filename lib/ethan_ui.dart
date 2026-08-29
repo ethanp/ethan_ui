@@ -10,6 +10,8 @@ export 'theme/e_theme.dart';
 
 export 'chrome/e_action_cluster.dart';
 export 'chrome/e_app_header.dart';
+export 'chrome/e_card.dart';
+export 'chrome/e_empty_state.dart';
 export 'chrome/e_filter_chip.dart';
 export 'chrome/e_list_row.dart';
 export 'chrome/e_pin_lock_screen.dart';
@@ -17,10 +19,12 @@ export 'chrome/e_privacy_chrome.dart';
 export 'chrome/e_privacy_gate.dart';
 export 'chrome/e_privacy_screen.dart';
 export 'chrome/e_scaffold_shell.dart';
+export 'chrome/e_section_header.dart';
 export 'chrome/e_segmented_control.dart';
 export 'chrome/e_side_panel.dart';
 export 'chrome/e_status_chip.dart';
 export 'chrome/e_surface.dart';
+export 'chrome/e_tab_bar.dart';
 export 'chrome/e_tinted_action.dart';
 export 'chrome/e_toolbar.dart';
 

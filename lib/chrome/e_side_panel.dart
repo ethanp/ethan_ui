@@ -54,7 +54,7 @@ class ESidePanel extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(title.toUpperCase(), style: EText.label),
+          Text(title.toUpperCase(), style: EText.label.small),
           if (onDismiss != null)
             IconButton(
               icon: const Icon(Icons.chevron_left, size: 18),

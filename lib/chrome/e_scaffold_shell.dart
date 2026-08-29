@@ -28,6 +28,7 @@ class EScaffoldShell extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: EColors.background,
+      extendBody: bottomBar != null,
       appBar: appBar == null ? null : _FrostedPreferredSize(child: appBar!),
       floatingActionButton: floatingActionButton,
       bottomNavigationBar: bottomBar,

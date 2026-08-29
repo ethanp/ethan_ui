@@ -33,7 +33,7 @@ class EPanel extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title.toUpperCase(), style: EText.label),
+                    Text(title.toUpperCase(), style: EText.label.small),
                     if (subtitle != null) ...[
                       const SizedBox(height: ELayout.spaceXs),
                       Text(subtitle!, style: EText.section),

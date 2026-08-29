@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'e_colors.dart';
 import 'e_input.dart';
@@ -108,7 +107,7 @@ abstract final class ETheme {
       ),
       snackBarTheme: SnackBarThemeData(
         backgroundColor: EColors.surfaceRaised,
-        contentTextStyle: EText.body.copyWith(color: EColors.textPrimary),
+        contentTextStyle: EText.body.medium.primary,
         behavior: SnackBarBehavior.floating,
         shape: const RoundedRectangleBorder(
           borderRadius: ELayout.borderRadiusSm,
@@ -118,7 +117,7 @@ abstract final class ETheme {
       dialogTheme: DialogThemeData(
         backgroundColor: EColors.surface,
         titleTextStyle: EText.section,
-        contentTextStyle: EText.body,
+        contentTextStyle: EText.body.medium,
         shape: const RoundedRectangleBorder(
           borderRadius: ELayout.borderRadiusLg,
           side: BorderSide(color: EColors.border),
@@ -132,6 +131,27 @@ abstract final class ETheme {
         color: EColors.border,
         thickness: 1,
         space: 1,
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        height: 56,
+        elevation: 0,
+        backgroundColor: EColors.backgroundLift,
+        indicatorColor: EColors.accent.withValues(alpha: 0.28),
+        overlayColor: WidgetStateProperty.all(Colors.transparent),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          final selected = states.contains(WidgetState.selected);
+          return EText.label.small.copyWith(
+            fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+            color: selected ? EColors.accent : EColors.textMuted,
+          );
+        }),
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          final selected = states.contains(WidgetState.selected);
+          return IconThemeData(
+            size: 22,
+            color: selected ? EColors.accent : EColors.textMuted,
+          );
+        }),
       ),
       chipTheme: ChipThemeData(
         backgroundColor: EColors.surfaceRaised,
@@ -152,7 +172,7 @@ abstract final class ETheme {
     );
 
     return base.copyWith(
-      textTheme: GoogleFonts.ibmPlexSansTextTheme(base.textTheme).apply(
+      textTheme: base.textTheme.apply(
         bodyColor: EColors.textSecondary,
         displayColor: EColors.textPrimary,
       ),

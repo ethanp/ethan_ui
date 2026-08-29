@@ -169,7 +169,7 @@ class ETintedAction extends StatelessWidget {
       children: [
         Text(
           title,
-          style: EText.label.copyWith(
+          style: EText.label.small.copyWith(
             color: accent,
             letterSpacing: 0.2,
             height: 1.15,
