@@ -81,12 +81,12 @@ class _FrostedPreferredSize extends StatelessWidget
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: preferredSize.height,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [const EFrostedFill(), child],
-      ),
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        const EFrostedFill(),
+        child,
+      ],
     );
   }
 }

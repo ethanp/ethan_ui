@@ -8,7 +8,9 @@ import '../theme/e_text.dart';
 
 /// Frost-ready screen header: accent mark, title stack, trailing actions.
 ///
-/// Pair with [EScaffoldShell] (frost already applied) or use standalone.
+/// Pair with [EScaffoldShell] for frost, or use standalone on [Scaffold.appBar].
+/// [Scaffold] allocates status-bar height above [preferredSize]; this header
+/// pads its content down by that inset so titles do not crowd the safe area.
 /// Height grows with eyebrow / subtitle so macOS type scale does not overflow.
 class EAppHeader extends StatelessWidget implements PreferredSizeWidget {
   const EAppHeader({
@@ -66,45 +68,46 @@ class EAppHeader extends StatelessWidget implements PreferredSizeWidget {
         automaticallyImplyLeading &&
         (route?.impliesAppBarDismissal ?? false);
 
-    // Scaffold already applies the top MediaQuery inset for primary app bars.
-    // Do not wrap in SafeArea — that shrinks the fixed preferred height and
-    // overflows the title stack (especially with eyebrow + subtitle on macOS).
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: EColors.border.withValues(alpha: 0.55),
+    final topInset = MediaQuery.paddingOf(context).top;
+    return Padding(
+      padding: EdgeInsets.only(top: topInset),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(
+              color: EColors.border.withValues(alpha: 0.55),
+            ),
           ),
         ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(
-          ELayout.spaceLg,
-          ELayout.spaceSm,
-          ELayout.spaceMd,
-          ELayout.spaceSm,
-        ),
-        child: Row(
-          children: [
-            if (leading != null) ...[
-              leading!,
-              const SizedBox(width: ELayout.spaceSm),
-            ] else if (showBack) ...[
-              IconButton(
-                tooltip: 'Back',
-                onPressed: () => Navigator.maybePop(context),
-                icon: const Icon(Icons.arrow_back_rounded),
-              ),
-              const SizedBox(width: ELayout.spaceXs),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+            ELayout.spaceLg,
+            ELayout.spaceSm,
+            ELayout.spaceMd,
+            ELayout.spaceSm,
+          ),
+          child: Row(
+            children: [
+              if (leading != null) ...[
+                leading!,
+                const SizedBox(width: ELayout.spaceSm),
+              ] else if (showBack) ...[
+                IconButton(
+                  tooltip: 'Back',
+                  onPressed: () => Navigator.maybePop(context),
+                  icon: const Icon(Icons.arrow_back_rounded),
+                ),
+                const SizedBox(width: ELayout.spaceXs),
+              ],
+              _HeaderAccentMark(accent: _accent),
+              const SizedBox(width: ELayout.spaceMd),
+              Expanded(child: _titleStack()),
+              for (final action in actions) ...[
+                const SizedBox(width: ELayout.spaceSm),
+                action,
+              ],
             ],
-            _HeaderAccentMark(accent: _accent),
-            const SizedBox(width: ELayout.spaceMd),
-            Expanded(child: _titleStack()),
-            for (final action in actions) ...[
-              const SizedBox(width: ELayout.spaceSm),
-              action,
-            ],
-          ],
+          ),
         ),
       ),
     );
