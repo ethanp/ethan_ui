@@ -7,7 +7,7 @@ import 'e_surface.dart';
 
 /// Accent-tinted action plate: icon + title + optional subtitle / chip.
 class ETintedAction extends StatelessWidget {
-  const ETintedAction({
+  const new({
     super.key,
     required this.accent,
     required this.icon,
@@ -18,11 +18,11 @@ class ETintedAction extends StatelessWidget {
     this.chipTone,
     this.trailing,
     this.live = false,
-  })  : compact = false,
-        iconOnly = false;
+  }) : compact = false,
+       iconOnly = false;
 
   /// Dense list-row plate (title + subtitle, no status chip hang).
-  const ETintedAction.compact({
+  const new compact({
     super.key,
     required this.accent,
     required this.icon,
@@ -31,14 +31,14 @@ class ETintedAction extends StatelessWidget {
     this.subtitle,
     this.trailing,
     this.live = false,
-  })  : compact = true,
-        iconOnly = false,
-        chipLabel = null,
-        chipTone = null;
+  }) : compact = true,
+       iconOnly = false,
+       chipLabel = null,
+       chipTone = null;
 
   /// Slimmest plate for tight rows: just the icon; [title] (and [subtitle])
   /// surface as a tooltip.
-  const ETintedAction.iconOnly({
+  const new iconOnly({
     super.key,
     required this.accent,
     required this.icon,
@@ -46,11 +46,11 @@ class ETintedAction extends StatelessWidget {
     this.onActivated,
     this.subtitle,
     this.live = false,
-  })  : compact = true,
-        iconOnly = true,
-        trailing = null,
-        chipLabel = null,
-        chipTone = null;
+  }) : compact = true,
+       iconOnly = true,
+       trailing = null,
+       chipLabel = null,
+       chipTone = null;
 
   final Color accent;
   final IconData icon;
@@ -78,8 +78,8 @@ class ETintedAction extends StatelessWidget {
       child: iconOnly
           ? _iconOnlyBody()
           : compact
-              ? _compactBody()
-              : _comfortableBody(),
+          ? _compactBody()
+          : _comfortableBody(),
     );
     if (!iconOnly) return plate;
     return Tooltip(
@@ -146,10 +146,7 @@ class ETintedAction extends StatelessWidget {
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
                     alignment: Alignment.centerRight,
-                    child: EStatusChip(
-                      label: chipLabel!,
-                      tone: chipTone!,
-                    ),
+                    child: EStatusChip(label: chipLabel!, tone: chipTone!),
                   ),
                 ),
               ],

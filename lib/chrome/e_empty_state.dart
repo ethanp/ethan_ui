@@ -4,20 +4,13 @@ import '../theme/e_colors.dart';
 import '../theme/e_layout.dart';
 import '../theme/e_text.dart';
 
-class EEmptyState extends StatelessWidget {
-  const EEmptyState({
-    super.key,
-    required this.title,
-    required this.message,
-    this.icon,
-    this.action,
-  });
-
-  final String title;
-  final String message;
-  final IconData? icon;
-  final Widget? action;
-
+class const EEmptyState({
+  super.key,
+  required final String title,
+  required final String message,
+  final IconData? icon,
+  final Widget? action,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -66,11 +59,8 @@ class EEmptyState extends StatelessWidget {
   }
 }
 
-class ELoadingState extends StatelessWidget {
-  const ELoadingState({super.key, this.message});
-
-  final String? message;
-
+class const ELoadingState({super.key, final String? message})
+    extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(

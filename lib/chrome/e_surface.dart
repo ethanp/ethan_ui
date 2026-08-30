@@ -4,7 +4,7 @@ import '../theme/e_colors.dart';
 import '../theme/e_layout.dart';
 
 /// Semantic surface roles for the machined-console look.
-enum ESurfaceKind {
+enum ESurfaceKind() {
   /// Raised metal panel (agent sections, dialogs).
   panel,
 
@@ -24,26 +24,16 @@ enum ESurfaceKind {
 /// [ESurfaceKind.row] and [ESurfaceKind.tinted] stay flat (border + gradient
 /// only) so dense interactive lists stay cheap to repaint. Soft shadows are
 /// reserved for [ESurfaceKind.panel].
-class ESurface extends StatelessWidget {
-  const ESurface({
-    super.key,
-    required this.kind,
-    required this.child,
-    this.padding,
-    this.accent,
-    this.attention = false,
-    this.onActivated,
-    this.borderRadius,
-  });
-
-  final ESurfaceKind kind;
-  final Widget child;
-  final EdgeInsetsGeometry? padding;
-  final Color? accent;
-  final bool attention;
-  final VoidCallback? onActivated;
-  final BorderRadius? borderRadius;
-
+class const ESurface({
+  super.key,
+  required final ESurfaceKind kind,
+  required final Widget child,
+  final EdgeInsetsGeometry? padding,
+  final Color? accent,
+  final bool attention = false,
+  final VoidCallback? onActivated,
+  final BorderRadius? borderRadius,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final radius =
@@ -124,18 +114,21 @@ class ESurface extends StatelessWidget {
   }
 }
 
-enum EFrostEdge { top, bottom, none }
+enum EFrostEdge() {
+  top,
+  bottom,
+  none,
+}
 
 /// Frost chrome fill for app bars and bottom strips.
 ///
 /// Uses an opaque frost color — not [BackdropFilter] — so scrolling lists
 /// underneath stay cheap to composite.
-class EFrostedFill extends StatelessWidget {
-  const EFrostedFill({super.key, this.child, this.edge = EFrostEdge.top});
-
-  final Widget? child;
-  final EFrostEdge edge;
-
+class const EFrostedFill({
+  super.key,
+  final Widget? child,
+  final EFrostEdge edge = EFrostEdge.top,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final border = switch (edge) {

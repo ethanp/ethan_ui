@@ -8,22 +8,14 @@ import 'e_surface.dart';
 ///
 /// Domain screens supply [appBar] / [body] / [bottomBar] without re-stating
 /// gradients or max-width constraints.
-class EScaffoldShell extends StatelessWidget {
-  const EScaffoldShell({
-    super.key,
-    required this.body,
-    this.appBar,
-    this.bottomBar,
-    this.contentMaxWidth = ELayout.contentMaxWidth,
-    this.floatingActionButton,
-  });
-
-  final PreferredSizeWidget? appBar;
-  final Widget body;
-  final Widget? bottomBar;
-  final double contentMaxWidth;
-  final Widget? floatingActionButton;
-
+class const EScaffoldShell({
+  super.key,
+  required final Widget body,
+  final PreferredSizeWidget? appBar,
+  final Widget? bottomBar,
+  final double contentMaxWidth = ELayout.contentMaxWidth,
+  final Widget? floatingActionButton,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -71,23 +63,14 @@ class EScaffoldShell extends StatelessWidget {
   }
 }
 
-class _FrostedPreferredSize extends StatelessWidget
+class const _FrostedPreferredSize({required final PreferredSizeWidget child})
+    extends StatelessWidget
     implements PreferredSizeWidget {
-  const _FrostedPreferredSize({required this.child});
-
-  final PreferredSizeWidget child;
-
   @override
   Size get preferredSize => child.preferredSize;
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        const EFrostedFill(),
-        child,
-      ],
-    );
+    return Stack(fit: StackFit.expand, children: [const EFrostedFill(), child]);
   }
 }

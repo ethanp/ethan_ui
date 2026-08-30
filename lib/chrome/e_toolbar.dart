@@ -4,20 +4,16 @@ import '../theme/e_layout.dart';
 import 'e_surface.dart';
 
 /// Frosted horizontal chrome strip for desktop toolbars.
-class EToolbar extends StatelessWidget {
-  const EToolbar({
-    super.key,
-    required this.child,
-    this.height = 56,
-    this.padding = const EdgeInsets.symmetric(horizontal: ELayout.spaceLg),
-  });
-
-  final Widget child;
+class const EToolbar({
+  super.key,
+  required final Widget child,
 
   /// Fixed height. Pass null to size the toolbar to [child].
-  final double? height;
-  final EdgeInsetsGeometry padding;
-
+  final double? height = 56,
+  final EdgeInsetsGeometry padding = const EdgeInsets.symmetric(
+    horizontal: ELayout.spaceLg,
+  ),
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final paddedChild = Padding(
@@ -32,9 +28,7 @@ class EToolbar extends StatelessWidget {
         width: double.infinity,
         child: Stack(
           children: [
-            const Positioned.fill(
-              child: EFrostedFill(edge: EFrostEdge.top),
-            ),
+            const Positioned.fill(child: EFrostedFill(edge: EFrostEdge.top)),
             paddedChild,
           ],
         ),

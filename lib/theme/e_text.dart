@@ -7,7 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'e_colors.dart';
 import 'e_layout.dart';
 
-abstract final class EText {
+abstract final class EText() {
   static String? get _sans {
     if (kIsWeb) return null;
     if (Platform.isIOS || Platform.isMacOS) return 'CupertinoSystemText';
@@ -35,19 +35,25 @@ abstract final class EText {
   static TextStyle get error => body.small.copyWith(color: EColors.danger);
 
   static TextStyle get mono => TextStyle(
+    inherit: false,
+    decoration: TextDecoration.none,
     fontFamily: _mono,
     fontSize: _size(13.5),
     fontWeight: FontWeight.w400,
     color: EColors.mono,
     height: 1.45,
+    textBaseline: TextBaseline.alphabetic,
   );
 
   static TextStyle get monoEmphasis => TextStyle(
+    inherit: false,
+    decoration: TextDecoration.none,
     fontFamily: _mono,
     fontSize: _size(14.5),
     fontWeight: FontWeight.w500,
     color: EColors.accentGlow,
     height: 1.35,
+    textBaseline: TextBaseline.alphabetic,
   );
 
   static TextStyle _sansStyle({
@@ -56,12 +62,15 @@ abstract final class EText {
     required double height,
     required double letterSpacing,
   }) => TextStyle(
+    inherit: false,
+    decoration: TextDecoration.none,
     fontFamily: _sans,
     fontFamilyFallback: _sans == null ? null : _sansFallback,
     fontWeight: fontWeight,
     color: color,
     height: height,
     letterSpacing: letterSpacing,
+    textBaseline: TextBaseline.alphabetic,
   );
 
   static TextTheme get textTheme => TextTheme(
@@ -73,9 +82,7 @@ abstract final class EText {
   );
 }
 
-class _EHeadlineScale {
-  const _EHeadlineScale();
-
+class const _EHeadlineScale() {
   TextStyle get _base => EText._sansStyle(
     fontWeight: FontWeight.w600,
     color: EColors.textPrimary,
@@ -92,13 +99,14 @@ class _EHeadlineScale {
 
   TextStyle get medium => _base.copyWith(fontSize: EText._size(24));
 
-  TextStyle get small =>
-      _base.copyWith(fontSize: EText._size(20), height: 1.4, letterSpacing: -0.2);
+  TextStyle get small => _base.copyWith(
+    fontSize: EText._size(20),
+    height: 1.4,
+    letterSpacing: -0.2,
+  );
 }
 
-class _EBodyScale {
-  const _EBodyScale();
-
+class const _EBodyScale() {
   TextStyle get _base => EText._sansStyle(
     fontWeight: FontWeight.w400,
     color: EColors.textPrimary,
@@ -116,9 +124,7 @@ class _EBodyScale {
   TextStyle get tiny => _base.copyWith(fontSize: EText._size(10));
 }
 
-class _ELabelScale {
-  const _ELabelScale();
-
+class const _ELabelScale() {
   TextStyle get _base => EText._sansStyle(
     fontWeight: FontWeight.w500,
     color: EColors.textPrimary,

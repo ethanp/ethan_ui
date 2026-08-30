@@ -12,35 +12,23 @@ import '../theme/e_text.dart';
 /// [Scaffold] allocates status-bar height above [preferredSize]; this header
 /// pads its content down by that inset so titles do not crowd the safe area.
 /// Height grows with eyebrow / subtitle so macOS type scale does not overflow.
-class EAppHeader extends StatelessWidget implements PreferredSizeWidget {
-  const EAppHeader({
-    super.key,
-    required this.title,
-    this.eyebrow,
-    this.subtitle,
-    this.accent,
-    this.leading,
-    this.actions = const [],
-    this.height,
-    this.automaticallyImplyLeading = true,
-  });
-
-  final String title;
-  final String? eyebrow;
-  final String? subtitle;
+class const EAppHeader({
+  super.key,
+  required final String title,
+  final String? eyebrow,
+  final String? subtitle,
 
   /// Glow for the accent rail and eyebrow. Defaults to [EColors.accentGlow].
-  final Color? accent;
+  final Color? accent,
 
   /// When set, replaces the auto-generated back button.
-  final Widget? leading;
-
-  final List<Widget> actions;
+  final Widget? leading,
+  final List<Widget> actions = const [],
 
   /// When null, height is derived from the title stack and action plate.
-  final double? height;
-  final bool automaticallyImplyLeading;
-
+  final double? height,
+  final bool automaticallyImplyLeading = true,
+}) extends StatelessWidget implements PreferredSizeWidget {
   Color get _accent => accent ?? EColors.accentGlow;
 
   @override
@@ -64,7 +52,8 @@ class EAppHeader extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final route = ModalRoute.of(context);
-    final showBack = leading == null &&
+    final showBack =
+        leading == null &&
         automaticallyImplyLeading &&
         (route?.impliesAppBarDismissal ?? false);
 
@@ -74,9 +63,7 @@ class EAppHeader extends StatelessWidget implements PreferredSizeWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           border: Border(
-            bottom: BorderSide(
-              color: EColors.border.withValues(alpha: 0.55),
-            ),
+            bottom: BorderSide(color: EColors.border.withValues(alpha: 0.55)),
           ),
         ),
         child: Padding(
@@ -160,11 +147,8 @@ class EAppHeader extends StatelessWidget implements PreferredSizeWidget {
   }
 }
 
-class _HeaderAccentMark extends StatelessWidget {
-  const _HeaderAccentMark({required this.accent});
-
-  final Color accent;
-
+class const _HeaderAccentMark({required final Color accent})
+    extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -178,8 +162,11 @@ class _HeaderAccentMark extends StatelessWidget {
             end: Alignment.bottomCenter,
             colors: [
               accent,
-              Color.lerp(accent, EColors.surface, 0.55)!
-                  .withValues(alpha: 0.35),
+              Color.lerp(
+                accent,
+                EColors.surface,
+                0.55,
+              )!.withValues(alpha: 0.35),
             ],
           ),
           boxShadow: [

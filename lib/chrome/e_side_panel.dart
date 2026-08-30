@@ -6,22 +6,15 @@ import '../theme/e_text.dart';
 import 'e_surface.dart';
 
 /// Metal side rail with a titled header and scrollable body.
-class ESidePanel extends StatelessWidget {
-  const ESidePanel({
-    super.key,
-    required this.title,
-    required this.child,
-    this.onDismiss,
-    this.width,
-  });
-
-  final String title;
-  final Widget child;
-  final VoidCallback? onDismiss;
+class const ESidePanel({
+  super.key,
+  required final String title,
+  required final Widget child,
+  final VoidCallback? onDismiss,
 
   /// When null, the panel sizes to its child's intrinsic width.
-  final double? width;
-
+  final double? width,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final panel = ESurface(

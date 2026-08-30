@@ -9,21 +9,17 @@ import 'e_privacy_screen.dart';
 /// Locked on first frame. Leaving the foreground covers immediately.
 /// Resume re-locks, then drops the shield after the next frame so content
 /// does not flash under the PIN pad.
-class EPrivacyGate extends StatefulWidget {
-  const EPrivacyGate({
-    super.key,
-    required this.child,
-    required this.pin,
-  });
-
-  final Widget child;
-  final String pin;
-
+class const EPrivacyGate({
+  super.key,
+  required final Widget child,
+  required final String pin,
+}) extends StatefulWidget {
   @override
   State<EPrivacyGate> createState() => _EPrivacyGateState();
 }
 
-class _EPrivacyGateState extends State<EPrivacyGate>
+class _EPrivacyGateState()
+    extends State<EPrivacyGate>
     with WidgetsBindingObserver {
   bool _locked = true;
   bool _showPrivacy = false;

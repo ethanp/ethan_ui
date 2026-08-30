@@ -3,20 +3,13 @@ import 'package:flutter/material.dart';
 import '../theme/e_layout.dart';
 import 'e_surface.dart';
 
-class ECard extends StatelessWidget {
-  const ECard({
-    super.key,
-    required this.child,
-    this.padding = const EdgeInsets.all(ELayout.spaceLg),
-    this.margin,
-    this.onActivated,
-  });
-
-  final Widget child;
-  final EdgeInsetsGeometry? padding;
-  final EdgeInsetsGeometry? margin;
-  final VoidCallback? onActivated;
-
+class const ECard({
+  super.key,
+  required final Widget child,
+  final EdgeInsetsGeometry? padding = const EdgeInsets.all(ELayout.spaceLg),
+  final EdgeInsetsGeometry? margin,
+  final VoidCallback? onActivated,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final card = ESurface(

@@ -3,18 +3,12 @@ import 'package:flutter/material.dart';
 import '../theme/e_layout.dart';
 import '../theme/e_text.dart';
 
-class ESectionHeader extends StatelessWidget {
-  const ESectionHeader({
-    super.key,
-    required this.title,
-    this.subtitle,
-    this.trailing,
-  });
-
-  final String title;
-  final String? subtitle;
-  final Widget? trailing;
-
+class const ESectionHeader({
+  super.key,
+  required final String title,
+  final String? subtitle,
+  final Widget? trailing,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(

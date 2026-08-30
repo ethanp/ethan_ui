@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-abstract final class EColors {
+abstract final class EColors() {
   static const background = Color(0xFF1A1B2E);
   static const backgroundLift = Color(0xFF252A3A);
   static const surface = Color(0xFF2F3542);

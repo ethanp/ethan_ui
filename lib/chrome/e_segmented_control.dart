@@ -6,34 +6,25 @@ import '../theme/e_motion.dart';
 import '../theme/e_text.dart';
 import 'e_surface.dart';
 
-class ESegment {
-  const ESegment({required this.icon, required this.label});
-
-  final IconData icon;
-  final String label;
-}
+class const ESegment({
+  required final IconData icon,
+  required final String label,
+});
 
 /// Compact frosted segmented control for companion chrome.
 ///
 /// When [expand] is true (default), segments share the parent width equally —
 /// use in bottom bars. When false, the control sizes to its labels.
-class ESegmentedControl extends StatelessWidget {
-  const ESegmentedControl({
-    super.key,
-    required this.segments,
-    required this.selectedIndex,
-    required this.onSelected,
-    this.expand = true,
-  });
-
-  final List<ESegment> segments;
-  final int selectedIndex;
-  final ValueChanged<int> onSelected;
+class const ESegmentedControl({
+  super.key,
+  required final List<ESegment> segments,
+  required final int selectedIndex,
+  required final ValueChanged<int> onSelected,
 
   /// If true, segments expand equally to fill the parent. If false, each
   /// segment sizes to its icon + label.
-  final bool expand;
-
+  final bool expand = true,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ESurface(
@@ -66,19 +57,12 @@ class ESegmentedControl extends StatelessWidget {
   }
 }
 
-class _SegmentButton extends StatelessWidget {
-  const _SegmentButton({
-    required this.segment,
-    required this.selected,
-    required this.expand,
-    required this.onActivated,
-  });
-
-  final ESegment segment;
-  final bool selected;
-  final bool expand;
-  final VoidCallback onActivated;
-
+class const _SegmentButton({
+  required final ESegment segment,
+  required final bool selected,
+  required final bool expand,
+  required final VoidCallback onActivated,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final label = Text(
@@ -127,11 +111,8 @@ class _SegmentButton extends StatelessWidget {
 }
 
 /// Frosted bottom chrome wrapping a centered [ESegmentedControl].
-class EFrostedBottomBar extends StatelessWidget {
-  const EFrostedBottomBar({super.key, required this.child});
-
-  final Widget child;
-
+class const EFrostedBottomBar({super.key, required final Widget child})
+    extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return EFrostedFill(

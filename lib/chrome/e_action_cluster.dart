@@ -9,7 +9,7 @@ import 'e_status_chip.dart';
 import 'e_surface.dart';
 
 /// Dense action-cluster metrics — only used by this file.
-abstract final class _ClusterChrome {
+abstract final class _ClusterChrome() {
   static const cellHeight = 44.0;
   static const cellPadH = 8.0;
   static const cellPadV = 6.0;
@@ -26,63 +26,42 @@ abstract final class _ClusterChrome {
 }
 
 /// One tappable cell inside an [EActionCluster] well.
-class EActionClusterCell {
-  const EActionClusterCell({
-    required this.icon,
-    required this.title,
-    required this.onActivated,
-    this.subtitle,
-    this.condensedLabel,
-    this.statusLabel,
-    this.statusTone,
-    this.trailing,
-    this.live = false,
-  });
-
-  final IconData icon;
-  final String title;
-  final VoidCallback onActivated;
-  final String? subtitle;
+class const EActionClusterCell({
+  required final IconData icon,
+  required final String title,
+  required final VoidCallback onActivated,
+  final String? subtitle,
 
   /// Icon + this label when the cell is too narrow for title + subtitle.
-  final String? condensedLabel;
+  final String? condensedLabel,
 
   /// Hanging top-edge ribbon (e.g. `changed`). Not an inline chip.
-  final String? statusLabel;
-  final EStatusTone? statusTone;
-  final Widget? trailing;
-  final bool live;
-}
+  final String? statusLabel,
+  final EStatusTone? statusTone,
+  final Widget? trailing,
+  final bool live = false,
+});
 
 /// Fused platform well: accent rail + hairline-split Run|Deploy cells.
-class EActionCluster extends StatelessWidget {
-  const EActionCluster({
-    super.key,
-    required this.accent,
-    required this.cells,
-    this.icon,
-    this.label,
-  });
-
-  final Color accent;
-  final List<EActionClusterCell> cells;
-  final IconData? icon;
-  final String? label;
-
+class const EActionCluster({
+  super.key,
+  required final Color accent,
+  required final List<EActionClusterCell> cells,
+  final IconData? icon,
+  final String? label,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (cells.isEmpty) return const SizedBox.shrink();
 
-    final height =
-        _ClusterChrome.cellHeight + _ClusterChrome.cellPadV * 2;
+    final height = _ClusterChrome.cellHeight + _ClusterChrome.cellPadV * 2;
     const radius = ELayout.borderRadiusMd;
 
     return SizedBox(
       height: height,
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final showRail =
-              icon != null || (label != null && label!.isNotEmpty);
+          final showRail = icon != null || (label != null && label!.isNotEmpty);
           final showRailLabel =
               showRail &&
               label != null &&
@@ -91,8 +70,8 @@ class EActionCluster extends StatelessWidget {
           final railWidth = !showRail
               ? 0.0
               : showRailLabel
-                  ? _ClusterChrome.railLabeled
-                  : _ClusterChrome.railIconOnly;
+              ? _ClusterChrome.railLabeled
+              : _ClusterChrome.railIconOnly;
 
           return Stack(
             clipBehavior: Clip.none,
@@ -119,7 +98,9 @@ class EActionCluster extends StatelessWidget {
                             thickness: 1,
                             color: EColors.border.withValues(alpha: 0.85),
                           ),
-                        Expanded(child: _Cell(accent: accent, cell: cells[index])),
+                        Expanded(
+                          child: _Cell(accent: accent, cell: cells[index]),
+                        ),
                       ],
                     ],
                   ),
@@ -157,7 +138,8 @@ class EActionCluster extends StatelessWidget {
           Positioned(
             left: x,
             width: cellWidth,
-            top: -_ClusterChrome.statusEdgeHeight +
+            top:
+                -_ClusterChrome.statusEdgeHeight +
                 _ClusterChrome.statusEdgeOverlap,
             child: IgnorePointer(
               child: _StatusEdge(label: statusLabel, tone: statusTone),
@@ -171,19 +153,12 @@ class EActionCluster extends StatelessWidget {
   }
 }
 
-class _AccentRail extends StatelessWidget {
-  const _AccentRail({
-    required this.accent,
-    required this.width,
-    this.icon,
-    this.label,
-  });
-
-  final Color accent;
-  final double width;
-  final IconData? icon;
-  final String? label;
-
+class const _AccentRail({
+  required final Color accent,
+  required final double width,
+  final IconData? icon,
+  final String? label,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -234,12 +209,10 @@ class _AccentRail extends StatelessWidget {
   }
 }
 
-class _Cell extends StatelessWidget {
-  const _Cell({required this.accent, required this.cell});
-
-  final Color accent;
-  final EActionClusterCell cell;
-
+class const _Cell({
+  required final Color accent,
+  required final EActionClusterCell cell,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cellAccent = cell.live ? accent : accent.withValues(alpha: 0.92);
@@ -259,8 +232,9 @@ class _Cell extends StatelessWidget {
             builder: (context, constraints) {
               final condensed =
                   constraints.maxWidth <= _ClusterChrome.condensedMaxWidth;
-              final padH =
-                  condensed ? ELayout.spaceXs : _ClusterChrome.cellPadH;
+              final padH = condensed
+                  ? ELayout.spaceXs
+                  : _ClusterChrome.cellPadH;
               return Padding(
                 padding: EdgeInsets.symmetric(
                   horizontal: padH,
@@ -334,8 +308,7 @@ class _Cell extends StatelessWidget {
     if (contentWidth <= 0) return const SizedBox.shrink();
 
     final condensedLabel = cell.condensedLabel;
-    final hasLabel =
-        condensedLabel != null && condensedLabel.isNotEmpty;
+    final hasLabel = condensedLabel != null && condensedLabel.isNotEmpty;
     final trailing = cell.trailing;
     final icon = Icon(
       cell.icon,
@@ -368,8 +341,7 @@ class _Cell extends StatelessWidget {
       }
     }
     final showLabel =
-        hasLabel &&
-        contentWidth - used - _ClusterChrome.condensedGap >= 8;
+        hasLabel && contentWidth - used - _ClusterChrome.condensedGap >= 8;
 
     return Row(
       children: [
@@ -395,10 +367,7 @@ class _Cell extends StatelessWidget {
           SizedBox(
             width: trailingWidth,
             height: _ClusterChrome.condensedTrailingIdeal,
-            child: FittedBox(
-              fit: BoxFit.contain,
-              child: trailing,
-            ),
+            child: FittedBox(fit: BoxFit.contain, child: trailing),
           ),
         ],
       ],
@@ -406,12 +375,10 @@ class _Cell extends StatelessWidget {
   }
 }
 
-class _StatusEdge extends StatelessWidget {
-  const _StatusEdge({required this.label, required this.tone});
-
-  final String label;
-  final EStatusTone tone;
-
+class const _StatusEdge({
+  required final String label,
+  required final EStatusTone tone,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(

@@ -5,20 +5,13 @@ import '../theme/e_layout.dart';
 import '../theme/e_text.dart';
 
 /// Titled metal panel used by agent / settings sections.
-class EPanel extends StatelessWidget {
-  const EPanel({
-    super.key,
-    required this.title,
-    required this.child,
-    this.trailing,
-    this.subtitle,
-  });
-
-  final String title;
-  final String? subtitle;
-  final Widget? trailing;
-  final Widget child;
-
+class const EPanel({
+  super.key,
+  required final String title,
+  required final Widget child,
+  final Widget? trailing,
+  final String? subtitle,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ESurface(

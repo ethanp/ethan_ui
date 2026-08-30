@@ -11,28 +11,18 @@ import 'e_surface.dart';
 /// When [leadingWidth] is set, leading is fixed and [trailing] expands (dense
 /// identity + action cluster). Otherwise leading expands and trailing sizes
 /// intrinsically (e.g. label name + count).
-class EListRow extends StatelessWidget {
-  const EListRow({
-    super.key,
-    required this.leading,
-    required this.trailing,
-    this.attention = false,
-    this.onActivated,
-    this.padding = const EdgeInsets.fromLTRB(14, 12, 14, 12),
-    this.leadingWidth,
-    this.gap = ELayout.spaceLg,
-  });
-
-  final Widget leading;
-  final Widget trailing;
-  final bool attention;
-  final VoidCallback? onActivated;
-  final EdgeInsetsGeometry padding;
+class const EListRow({
+  super.key,
+  required final Widget leading,
+  required final Widget trailing,
+  final bool attention = false,
+  final VoidCallback? onActivated,
+  final EdgeInsetsGeometry padding = const EdgeInsets.fromLTRB(14, 12, 14, 12),
 
   /// When set, pins [leading] to a fixed width (e.g. [ELayout.listRowLeadingWidth]).
-  final double? leadingWidth;
-  final double gap;
-
+  final double? leadingWidth,
+  final double gap = ELayout.spaceLg,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ESurface(

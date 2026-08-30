@@ -6,7 +6,7 @@ import 'e_input.dart';
 import 'e_layout.dart';
 import 'e_text.dart';
 
-abstract final class ETheme {
+abstract final class ETheme() {
   static ThemeData build() {
     final colorScheme = ColorScheme.dark(
       surface: EColors.surface,
@@ -159,8 +159,7 @@ abstract final class ETheme {
         disabledColor: EColors.surface,
         deleteIconColor: EColors.textMuted,
         labelStyle: EText.caption.copyWith(color: EColors.textSecondary),
-        secondaryLabelStyle:
-            EText.caption.copyWith(color: EColors.accentGlow),
+        secondaryLabelStyle: EText.caption.copyWith(color: EColors.accentGlow),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
         shape: const RoundedRectangleBorder(
           borderRadius: ELayout.borderRadiusSm,

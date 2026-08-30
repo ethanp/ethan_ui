@@ -7,7 +7,11 @@ import '../theme/e_text.dart';
 
 /// Status accent for chips and hanging edges — colors live on each constant
 /// (Bloch-style), not in parallel switch maps at call sites.
-enum EStatusTone {
+enum EStatusTone({
+  required final Color foreground,
+  required final Color background,
+  final double fillAlpha = 0.85,
+}) {
   accent(foreground: EColors.accentGlow, background: EColors.accentSoft),
   success(foreground: EColors.success, background: EColors.successSoft),
   warning(foreground: EColors.warning, background: EColors.warningSoft),
@@ -16,32 +20,16 @@ enum EStatusTone {
     foreground: EColors.textMuted,
     background: EColors.surfaceRaised,
     fillAlpha: 1,
-  );
-
-  const EStatusTone({
-    required this.foreground,
-    required this.background,
-    this.fillAlpha = 0.85,
-  });
-
-  final Color foreground;
-  final Color background;
-  final double fillAlpha;
+  ),
 }
 
 /// Compact status chip used by deploy targets, agent pills, etc.
-class EStatusChip extends StatelessWidget {
-  const EStatusChip({
-    super.key,
-    required this.label,
-    required this.tone,
-    this.uppercase = false,
-  });
-
-  final String label;
-  final EStatusTone tone;
-  final bool uppercase;
-
+class const EStatusChip({
+  super.key,
+  required final String label,
+  required final EStatusTone tone,
+  final bool uppercase = false,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedContainer(

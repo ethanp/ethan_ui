@@ -4,21 +4,17 @@ import 'package:flutter/services.dart';
 import 'e_privacy_chrome.dart';
 
 /// 4-digit PIN pad. Calls [onUnlocked] when [pin] matches.
-class EPinLockScreen extends StatefulWidget {
-  const EPinLockScreen({
-    super.key,
-    required this.pin,
-    required this.onUnlocked,
-  });
-
-  final String pin;
-  final VoidCallback onUnlocked;
-
+class const EPinLockScreen({
+  super.key,
+  required final String pin,
+  required final VoidCallback onUnlocked,
+}) extends StatefulWidget {
   @override
   State<EPinLockScreen> createState() => _EPinLockScreenState();
 }
 
-class _EPinLockScreenState extends State<EPinLockScreen>
+class _EPinLockScreenState()
+    extends State<EPinLockScreen>
     with SingleTickerProviderStateMixin {
   String _enteredPin = '';
   bool _showError = false;
@@ -111,8 +107,8 @@ class _EPinLockScreenState extends State<EPinLockScreen>
       builder: (context, child) {
         final double shake = _showError
             ? (1 - _shakeAnimation.value) *
-                10 *
-                ((_shakeController.value * 10).floor() % 2 == 0 ? 1 : -1)
+                  10 *
+                  ((_shakeController.value * 10).floor() % 2 == 0 ? 1 : -1)
             : 0.0;
         return Transform.translate(offset: Offset(shake, 0), child: child);
       },
@@ -132,7 +128,9 @@ class _EPinLockScreenState extends State<EPinLockScreen>
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: isFilled
-                ? (_showError ? EPrivacyChrome.danger : EPrivacyChrome.filledDot)
+                ? (_showError
+                      ? EPrivacyChrome.danger
+                      : EPrivacyChrome.filledDot)
                 : Colors.transparent,
             border: Border.all(
               color: _showError
@@ -166,9 +164,7 @@ class _EPinLockScreenState extends State<EPinLockScreen>
   Widget _digitRow(List<String> keys) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        for (final String key in keys) _padKey(key),
-      ],
+      children: [for (final String key in keys) _padKey(key)],
     );
   }
 
@@ -188,9 +184,7 @@ class _EPinLockScreenState extends State<EPinLockScreen>
           shape: BoxShape.circle,
           color: EPrivacyChrome.keyFill,
         ),
-        child: Center(
-          child: Text(digit, style: EPrivacyChrome.digit),
-        ),
+        child: Center(child: Text(digit, style: EPrivacyChrome.digit)),
       ),
     );
   }

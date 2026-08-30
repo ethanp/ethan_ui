@@ -4,22 +4,14 @@ import '../theme/e_layout.dart';
 import '../theme/e_text.dart';
 
 /// Colored selectable chip for filter / pick lists.
-class EFilterChip extends StatelessWidget {
-  const EFilterChip({
-    super.key,
-    required this.label,
-    required this.color,
-    required this.selected,
-    required this.onActivated,
-    this.icon,
-  });
-
-  final String label;
-  final Color color;
-  final bool selected;
-  final VoidCallback onActivated;
-  final IconData? icon;
-
+class const EFilterChip({
+  super.key,
+  required final String label,
+  required final Color color,
+  required final bool selected,
+  required final VoidCallback onActivated,
+  final IconData? icon,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(

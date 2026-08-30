@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 /// Layout tokens for the machined-console theme: radii, spacing, type scale.
-abstract final class ELayout {
+abstract final class ELayout() {
   static const radiusSm = 10.0;
   static const radiusMd = 14.0;
   static const radiusLg = 18.0;

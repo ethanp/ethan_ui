@@ -7,44 +7,26 @@ import '../theme/e_layout.dart';
 import '../theme/e_text.dart';
 
 /// Line-level color for matching [LogConsole] log lines.
-class LogConsoleHighlight {
-  const LogConsoleHighlight({
-    required this.pattern,
-    required this.color,
-    this.fontWeight = FontWeight.w600,
-  });
-
-  final Pattern pattern;
-  final Color color;
-  final FontWeight fontWeight;
-
-  LogLineHighlight toLogLineHighlight() => LogLineHighlight(
-        pattern: pattern,
-        color: color,
-        fontWeight: fontWeight,
-      );
+class const LogConsoleHighlight({
+  required final Pattern pattern,
+  required final Color color,
+  final FontWeight fontWeight = FontWeight.w600,
+}) {
+  LogLineHighlight toLogLineHighlight() =>
+      LogLineHighlight(pattern: pattern, color: color, fontWeight: fontWeight);
 }
 
-class LogConsole extends StatelessWidget {
-  const LogConsole({
-    super.key,
-    required this.log,
-    this.controller,
-    this.maxHeight,
-    this.emptyMessage = '(no log yet)',
-    this.highlights = const [],
-    this.trimBeforeLastHighlight = false,
-  });
-
-  final String log;
-  final ScrollController? controller;
-  final double? maxHeight;
-  final String emptyMessage;
-  final List<LogConsoleHighlight> highlights;
+class const LogConsole({
+  super.key,
+  required final String log,
+  final ScrollController? controller,
+  final double? maxHeight,
+  final String emptyMessage = '(no log yet)',
+  final List<LogConsoleHighlight> highlights = const [],
 
   /// See [LogTextView.trimBeforeLastHighlight].
-  final bool trimBeforeLastHighlight;
-
+  final bool trimBeforeLastHighlight = false,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final console = ESurface(

@@ -5,7 +5,7 @@ import 'e_layout.dart';
 
 /// Text-field outline borders and filled decorations for the machined-console
 /// theme.
-abstract final class EInput {
+abstract final class EInput() {
   static const outlineSm = OutlineInputBorder(
     borderRadius: ELayout.borderRadiusSm,
     borderSide: BorderSide(color: EColors.border),

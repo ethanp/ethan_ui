@@ -4,29 +4,18 @@ import 'package:flutter/material.dart';
 
 import '../theme/e_colors.dart';
 
-class ETab {
-  const ETab({required this.icon, required this.label});
+class const ETab({required final IconData icon, required final String label});
 
-  final IconData icon;
-  final String label;
-}
-
-class ETabBar extends StatelessWidget {
-  const ETabBar({
-    super.key,
-    required this.tabs,
-    required this.selectedIndex,
-    required this.onSelected,
-  });
-
+class const ETabBar({
+  super.key,
+  required final List<ETab> tabs,
+  required final int selectedIndex,
+  required final ValueChanged<int> onSelected,
+}) extends StatelessWidget {
   static const height = 56.0;
   static const bottomPadding = 10.0;
   static const occupiedHeight = height + bottomPadding;
   static const iconSize = 30.0;
-
-  final List<ETab> tabs;
-  final int selectedIndex;
-  final ValueChanged<int> onSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -49,16 +38,16 @@ class ETabBar extends StatelessWidget {
               child: SizedBox(
                 height: height,
                 child: Row(
-                children: [
-                  for (var tabIndex = 0; tabIndex < tabs.length; tabIndex++)
-                    Expanded(
-                      child: _ETabButton(
-                        tab: tabs[tabIndex],
-                        selected: tabIndex == selectedIndex,
-                        onSelected: () => onSelected(tabIndex),
+                  children: [
+                    for (var tabIndex = 0; tabIndex < tabs.length; tabIndex++)
+                      Expanded(
+                        child: _ETabButton(
+                          tab: tabs[tabIndex],
+                          selected: tabIndex == selectedIndex,
+                          onSelected: () => onSelected(tabIndex),
+                        ),
                       ),
-                    ),
-                ],
+                  ],
                 ),
               ),
             ),
@@ -69,17 +58,11 @@ class ETabBar extends StatelessWidget {
   }
 }
 
-class _ETabButton extends StatelessWidget {
-  const _ETabButton({
-    required this.tab,
-    required this.selected,
-    required this.onSelected,
-  });
-
-  final ETab tab;
-  final bool selected;
-  final VoidCallback onSelected;
-
+class const _ETabButton({
+  required final ETab tab,
+  required final bool selected,
+  required final VoidCallback onSelected,
+}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = selected ? EColors.accent : EColors.textMuted;
@@ -105,6 +88,7 @@ class _ETabButton extends StatelessWidget {
               letterSpacing: -0.24,
               height: 1,
               color: color,
+              textBaseline: TextBaseline.alphabetic,
             ),
           ),
           const SizedBox(height: 6),
