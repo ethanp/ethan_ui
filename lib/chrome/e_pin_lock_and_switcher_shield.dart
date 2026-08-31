@@ -4,22 +4,23 @@ import 'package:flutter/scheduler.dart';
 import 'e_pin_lock_screen.dart';
 import 'e_privacy_screen.dart';
 
-/// iOS app-switcher shield + PIN lock (same lifecycle as viant_ios).
+/// PIN lock on launch and resume, plus an app-switcher cover when backgrounded.
 ///
 /// Locked on first frame. Leaving the foreground covers immediately.
 /// Resume re-locks, then drops the shield after the next frame so content
 /// does not flash under the PIN pad.
-class const EPrivacyGate({
+class const EPinLockAndSwitcherShield({
   super.key,
   required final Widget child,
   required final String pin,
 }) extends StatefulWidget {
   @override
-  State<EPrivacyGate> createState() => _EPrivacyGateState();
+  State<EPinLockAndSwitcherShield> createState() =>
+      _EPinLockAndSwitcherShieldState();
 }
 
-class _EPrivacyGateState()
-    extends State<EPrivacyGate>
+class _EPinLockAndSwitcherShieldState()
+    extends State<EPinLockAndSwitcherShield>
     with WidgetsBindingObserver {
   bool _locked = true;
   bool _showPrivacy = false;

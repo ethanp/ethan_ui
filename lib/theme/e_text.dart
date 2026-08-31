@@ -8,15 +8,19 @@ import 'e_colors.dart';
 import 'e_layout.dart';
 
 abstract final class EText() {
-  static String? get _sans {
+  static String? get _appleSystemSansFamily {
     if (kIsWeb) return null;
     if (Platform.isIOS || Platform.isMacOS) return 'CupertinoSystemText';
     return null;
   }
 
-  static const _sansFallback = ['.AppleSystemUIFont', '.SF Pro Text'];
+  static const _appleSystemSansFallback = [
+    '.AppleSystemUIFont',
+    '.SF Pro Text',
+  ];
 
-  static String? get _mono => GoogleFonts.ibmPlexMono().fontFamily;
+  static String? get _ibmPlexMonoFamily =>
+      GoogleFonts.ibmPlexMono().fontFamily;
 
   static double _size(double phoneSize) => ELayout.typeSize(phoneSize);
 
@@ -37,7 +41,7 @@ abstract final class EText() {
   static TextStyle get mono => TextStyle(
     inherit: false,
     decoration: TextDecoration.none,
-    fontFamily: _mono,
+    fontFamily: _ibmPlexMonoFamily,
     fontSize: _size(13.5),
     fontWeight: FontWeight.w400,
     color: EColors.mono,
@@ -48,7 +52,7 @@ abstract final class EText() {
   static TextStyle get monoEmphasis => TextStyle(
     inherit: false,
     decoration: TextDecoration.none,
-    fontFamily: _mono,
+    fontFamily: _ibmPlexMonoFamily,
     fontSize: _size(14.5),
     fontWeight: FontWeight.w500,
     color: EColors.accentGlow,
@@ -56,7 +60,7 @@ abstract final class EText() {
     textBaseline: TextBaseline.alphabetic,
   );
 
-  static TextStyle _sansStyle({
+  static TextStyle _consoleSans({
     required FontWeight fontWeight,
     required Color color,
     required double height,
@@ -64,8 +68,10 @@ abstract final class EText() {
   }) => TextStyle(
     inherit: false,
     decoration: TextDecoration.none,
-    fontFamily: _sans,
-    fontFamilyFallback: _sans == null ? null : _sansFallback,
+    fontFamily: _appleSystemSansFamily,
+    fontFamilyFallback: _appleSystemSansFamily == null
+        ? null
+        : _appleSystemSansFallback,
     fontWeight: fontWeight,
     color: color,
     height: height,
@@ -83,7 +89,7 @@ abstract final class EText() {
 }
 
 class const _EHeadlineScale() {
-  TextStyle get _base => EText._sansStyle(
+  TextStyle get _base => EText._consoleSans(
     fontWeight: FontWeight.w600,
     color: EColors.textPrimary,
     height: 1.3,
@@ -107,7 +113,7 @@ class const _EHeadlineScale() {
 }
 
 class const _EBodyScale() {
-  TextStyle get _base => EText._sansStyle(
+  TextStyle get _base => EText._consoleSans(
     fontWeight: FontWeight.w400,
     color: EColors.textPrimary,
     height: 1.5,
@@ -125,7 +131,7 @@ class const _EBodyScale() {
 }
 
 class const _ELabelScale() {
-  TextStyle get _base => EText._sansStyle(
+  TextStyle get _base => EText._consoleSans(
     fontWeight: FontWeight.w500,
     color: EColors.textPrimary,
     height: 1.4,

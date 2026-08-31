@@ -11,7 +11,7 @@ class const ESegment({
   required final String label,
 });
 
-/// Compact frosted segmented control for companion chrome.
+/// Compact frosted segmented control for companion bars.
 ///
 /// When [expand] is true (default), segments share the parent width equally —
 /// use in bottom bars. When false, the control sizes to its labels.
@@ -110,7 +110,7 @@ class const _SegmentButton({
   }
 }
 
-/// Frosted bottom chrome wrapping a centered [ESegmentedControl].
+/// Frosted bottom bar wrapping a centered [ESegmentedControl].
 class const EFrostedBottomBar({super.key, required final Widget child})
     extends StatelessWidget {
   @override

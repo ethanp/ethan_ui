@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// PIN pad and app-switcher shield — same tokens as viant_ios.
-abstract final class EPrivacyChrome() {
+/// PIN pad and app-switcher shield look — same as viant_ios.
+abstract final class EPrivacyLockLook() {
   static const shield = Color(0xFF0A1628);
   static const lockBackground = Color(0xFF000000);
   static const keyFill = Color(0xFF1C1C1E);

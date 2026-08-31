@@ -7,7 +7,7 @@ import 'e_layout.dart';
 import 'e_text.dart';
 
 abstract final class ETheme() {
-  static ThemeData build() {
+  static ThemeData get material3Dark {
     final colorScheme = ColorScheme.dark(
       surface: EColors.surface,
       primary: EColors.accent,

@@ -48,7 +48,7 @@ class const ESurface({
     final content = padding == null
         ? child
         : Padding(padding: padding!, child: child);
-    final decoration = _decoration(radius);
+    final decoration = _brushedMetalDecoration(radius);
 
     if (onActivated == null) {
       return DecoratedBox(decoration: decoration, child: content);
@@ -71,7 +71,7 @@ class const ESurface({
     );
   }
 
-  BoxDecoration _decoration(BorderRadius radius) {
+  BoxDecoration _brushedMetalDecoration(BorderRadius radius) {
     final attentionColor = EColors.warning;
     final borderColor = attention
         ? attentionColor.withValues(alpha: 0.4)
@@ -120,7 +120,7 @@ enum EFrostEdge() {
   none,
 }
 
-/// Frost chrome fill for app bars and bottom strips.
+/// Opaque frost fill for app bars and bottom bars.
 ///
 /// Uses an opaque frost color — not [BackdropFilter] — so scrolling lists
 /// underneath stay cheap to composite.

@@ -21,7 +21,7 @@ class const EScaffoldShell({
     return Scaffold(
       backgroundColor: EColors.background,
       extendBody: bottomBar != null,
-      appBar: appBar == null ? null : _FrostedPreferredSize(child: appBar!),
+      appBar: appBar == null ? null : _FrostBehindAppBar(child: appBar!),
       floatingActionButton: floatingActionButton,
       bottomNavigationBar: bottomBar,
       body: DecoratedBox(
@@ -63,7 +63,7 @@ class const EScaffoldShell({
   }
 }
 
-class const _FrostedPreferredSize({required final PreferredSizeWidget child})
+class const _FrostBehindAppBar({required final PreferredSizeWidget child})
     extends StatelessWidget
     implements PreferredSizeWidget {
   @override

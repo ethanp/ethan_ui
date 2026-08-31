@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'e_privacy_chrome.dart';
+import 'e_privacy_lock_look.dart';
 
 /// 4-digit PIN pad. Calls [onUnlocked] when [pin] matches.
 class const EPinLockScreen({
@@ -79,15 +79,15 @@ class _EPinLockScreenState()
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: EPrivacyChrome.lockBackground,
+      backgroundColor: EPrivacyLockLook.lockBackground,
       body: SafeArea(
         child: Column(
           children: [
             const Spacer(flex: 2),
-            const Text('Enter PIN', style: EPrivacyChrome.title),
+            const Text('Enter PIN', style: EPrivacyLockLook.title),
             const SizedBox(height: 8),
             if (_showError)
-              const Text('Incorrect PIN', style: EPrivacyChrome.error)
+              const Text('Incorrect PIN', style: EPrivacyLockLook.error)
             else
               const SizedBox(height: 20),
             const SizedBox(height: 32),
@@ -129,13 +129,13 @@ class _EPinLockScreenState()
             shape: BoxShape.circle,
             color: isFilled
                 ? (_showError
-                      ? EPrivacyChrome.danger
-                      : EPrivacyChrome.filledDot)
+                      ? EPrivacyLockLook.danger
+                      : EPrivacyLockLook.filledDot)
                 : Colors.transparent,
             border: Border.all(
               color: _showError
-                  ? EPrivacyChrome.danger
-                  : EPrivacyChrome.textSecondary,
+                  ? EPrivacyLockLook.danger
+                  : EPrivacyLockLook.textSecondary,
               width: 2,
             ),
           ),
@@ -182,9 +182,9 @@ class _EPinLockScreenState()
         height: 80,
         decoration: const BoxDecoration(
           shape: BoxShape.circle,
-          color: EPrivacyChrome.keyFill,
+          color: EPrivacyLockLook.keyFill,
         ),
-        child: Center(child: Text(digit, style: EPrivacyChrome.digit)),
+        child: Center(child: Text(digit, style: EPrivacyLockLook.digit)),
       ),
     );
   }
@@ -198,7 +198,7 @@ class _EPinLockScreenState()
         child: Center(
           child: Icon(
             Icons.backspace_outlined,
-            color: EPrivacyChrome.textSecondary,
+            color: EPrivacyLockLook.textSecondary,
             size: 28,
           ),
         ),

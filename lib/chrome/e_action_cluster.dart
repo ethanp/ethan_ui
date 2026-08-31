@@ -8,8 +8,7 @@ import '../theme/e_text.dart';
 import 'e_status_chip.dart';
 import 'e_surface.dart';
 
-/// Dense action-cluster metrics — only used by this file.
-abstract final class _ClusterChrome() {
+abstract final class _DenseFusedWellSizing() {
   static const cellHeight = 44.0;
   static const cellPadH = 8.0;
   static const cellPadV = 6.0;
@@ -54,7 +53,7 @@ class const EActionCluster({
   Widget build(BuildContext context) {
     if (cells.isEmpty) return const SizedBox.shrink();
 
-    final height = _ClusterChrome.cellHeight + _ClusterChrome.cellPadV * 2;
+    final height = _DenseFusedWellSizing.cellHeight + _DenseFusedWellSizing.cellPadV * 2;
     const radius = ELayout.borderRadiusMd;
 
     return SizedBox(
@@ -66,12 +65,12 @@ class const EActionCluster({
               showRail &&
               label != null &&
               label!.isNotEmpty &&
-              constraints.maxWidth >= _ClusterChrome.labeledRailMinClusterWidth;
+              constraints.maxWidth >= _DenseFusedWellSizing.labeledRailMinClusterWidth;
           final railWidth = !showRail
               ? 0.0
               : showRailLabel
-              ? _ClusterChrome.railLabeled
-              : _ClusterChrome.railIconOnly;
+              ? _DenseFusedWellSizing.railLabeled
+              : _DenseFusedWellSizing.railIconOnly;
 
           return Stack(
             clipBehavior: Clip.none,
@@ -139,8 +138,8 @@ class const EActionCluster({
             left: x,
             width: cellWidth,
             top:
-                -_ClusterChrome.statusEdgeHeight +
-                _ClusterChrome.statusEdgeOverlap,
+                -_DenseFusedWellSizing.statusEdgeHeight +
+                _DenseFusedWellSizing.statusEdgeOverlap,
             child: IgnorePointer(
               child: _StatusEdge(label: statusLabel, tone: statusTone),
             ),
@@ -231,26 +230,26 @@ class const _Cell({
           child: LayoutBuilder(
             builder: (context, constraints) {
               final condensed =
-                  constraints.maxWidth <= _ClusterChrome.condensedMaxWidth;
+                  constraints.maxWidth <= _DenseFusedWellSizing.condensedMaxWidth;
               final padH = condensed
                   ? ELayout.spaceXs
-                  : _ClusterChrome.cellPadH;
+                  : _DenseFusedWellSizing.cellPadH;
               return Padding(
                 padding: EdgeInsets.symmetric(
                   horizontal: padH,
-                  vertical: _ClusterChrome.cellPadV,
+                  vertical: _DenseFusedWellSizing.cellPadV,
                 ),
                 child: SizedBox(
-                  height: _ClusterChrome.cellHeight,
+                  height: _DenseFusedWellSizing.cellHeight,
                   child: condensed
-                      ? _condensed(
+                      ? _iconAndCondensedLabel(
                           cellAccent,
                           contentWidth: math.max(
                             0.0,
                             constraints.maxWidth - padH * 2,
                           ),
                         )
-                      : _full(cellAccent),
+                      : _titleAndSubtitle(cellAccent),
                 ),
               );
             },
@@ -260,7 +259,7 @@ class const _Cell({
     );
   }
 
-  Widget _full(Color cellAccent) {
+  Widget _titleAndSubtitle(Color cellAccent) {
     final showSubtitle = cell.subtitle != null && cell.subtitle!.isNotEmpty;
     return Row(
       children: [
@@ -304,7 +303,10 @@ class const _Cell({
     );
   }
 
-  Widget _condensed(Color cellAccent, {required double contentWidth}) {
+  Widget _iconAndCondensedLabel(
+    Color cellAccent, {
+    required double contentWidth,
+  }) {
     if (contentWidth <= 0) return const SizedBox.shrink();
 
     final condensedLabel = cell.condensedLabel;
@@ -312,14 +314,14 @@ class const _Cell({
     final trailing = cell.trailing;
     final icon = Icon(
       cell.icon,
-      size: _ClusterChrome.condensedIconSize,
+      size: _DenseFusedWellSizing.condensedIconSize,
       color: cellAccent,
     );
 
     // Non-flex children get the full max width (Flexible flex:0 included).
     // Size trailing explicitly so Icon + gaps + trailing never exceed
     // [contentWidth]; drop the label first when space is tight.
-    if (contentWidth < _ClusterChrome.condensedIconSize) {
+    if (contentWidth < _DenseFusedWellSizing.condensedIconSize) {
       return FittedBox(
         fit: BoxFit.scaleDown,
         alignment: Alignment.centerLeft,
@@ -327,27 +329,27 @@ class const _Cell({
       );
     }
 
-    var used = _ClusterChrome.condensedIconSize;
+    var used = _DenseFusedWellSizing.condensedIconSize;
     double? trailingWidth;
     if (trailing != null) {
       final availableForTrailing =
-          contentWidth - used - _ClusterChrome.condensedGap;
-      if (availableForTrailing >= _ClusterChrome.condensedTrailingMin) {
+          contentWidth - used - _DenseFusedWellSizing.condensedGap;
+      if (availableForTrailing >= _DenseFusedWellSizing.condensedTrailingMin) {
         trailingWidth = math.min(
-          _ClusterChrome.condensedTrailingIdeal,
+          _DenseFusedWellSizing.condensedTrailingIdeal,
           availableForTrailing,
         );
-        used += _ClusterChrome.condensedGap + trailingWidth;
+        used += _DenseFusedWellSizing.condensedGap + trailingWidth;
       }
     }
     final showLabel =
-        hasLabel && contentWidth - used - _ClusterChrome.condensedGap >= 8;
+        hasLabel && contentWidth - used - _DenseFusedWellSizing.condensedGap >= 8;
 
     return Row(
       children: [
         icon,
         if (showLabel) ...[
-          const SizedBox(width: _ClusterChrome.condensedGap),
+          const SizedBox(width: _DenseFusedWellSizing.condensedGap),
           Expanded(
             child: Text(
               condensedLabel,
@@ -363,10 +365,10 @@ class const _Cell({
           ),
         ],
         if (trailingWidth != null) ...[
-          const SizedBox(width: _ClusterChrome.condensedGap),
+          const SizedBox(width: _DenseFusedWellSizing.condensedGap),
           SizedBox(
             width: trailingWidth,
-            height: _ClusterChrome.condensedTrailingIdeal,
+            height: _DenseFusedWellSizing.condensedTrailingIdeal,
             child: FittedBox(fit: BoxFit.contain, child: trailing),
           ),
         ],
@@ -388,7 +390,7 @@ class const _StatusEdge({
         border: Border.all(color: tone.foreground.withValues(alpha: 0.4)),
       ),
       child: SizedBox(
-        height: _ClusterChrome.statusEdgeHeight,
+        height: _DenseFusedWellSizing.statusEdgeHeight,
         child: Center(
           child: Text(
             label,

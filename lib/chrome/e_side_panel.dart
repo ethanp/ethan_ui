@@ -23,7 +23,7 @@ class const ESidePanel({
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _header(),
+          _titledRailHeader(),
           Expanded(child: child),
         ],
       ),
@@ -36,7 +36,7 @@ class const ESidePanel({
     return IntrinsicWidth(child: panel);
   }
 
-  Widget _header() {
+  Widget _titledRailHeader() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         ELayout.spaceMd,

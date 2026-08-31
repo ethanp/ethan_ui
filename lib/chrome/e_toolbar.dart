@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/e_layout.dart';
 import 'e_surface.dart';
 
-/// Frosted horizontal chrome strip for desktop toolbars.
+/// Frosted horizontal fill for desktop toolbars.
 class const EToolbar({
   super.key,
   required final Widget child,
