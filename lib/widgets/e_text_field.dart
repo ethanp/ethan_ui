@@ -55,13 +55,20 @@ class const ETextField({
 
   static TextStyle get _fieldStyle => EText.body.medium;
 
+  /// Width of [text] in [style], plus [extra] trailing room (caret / typing).
+  static double widthForText(
+    String text, {
+    TextStyle? style,
+    double extra = _caretSlack,
+  }) {
+    return text.laidOutWidth(style ?? _fieldStyle) + extra;
+  }
+
   /// Width that fits [count] wide digits plus field chrome.
   static double widthForDigitCount(int count) {
-    final double figuresWidth = ('8' * count).laidOutWidth(_fieldStyle);
-    return figuresWidth +
+    return widthForText('8' * count) +
         ELayout.spaceMd * 2 +
-        EInput.outlineSm.borderSide.width * 2 +
-        _caretSlack;
+        EInput.outlineSm.borderSide.width * 2;
   }
 
   @override

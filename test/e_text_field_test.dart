@@ -23,5 +23,11 @@ void main() {
       greaterThanOrEqualTo(figuresWidth + ELayout.spaceMd * 2),
     );
     expect(fieldSize.width, ETextField.widthForDigitCount(2));
+    expect(
+      ETextField.widthForDigitCount(2),
+      ETextField.widthForText('88') +
+          ELayout.spaceMd * 2 +
+          EInput.outlineSm.borderSide.width * 2,
+    );
   });
 }

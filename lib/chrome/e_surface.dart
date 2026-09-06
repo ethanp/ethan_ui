@@ -42,7 +42,7 @@ class const ESurface({
           ESurfaceKind.panel => ELayout.radiusLg,
           ESurfaceKind.row => ELayout.radiusXl,
           ESurfaceKind.inset => ELayout.radiusMd,
-          ESurfaceKind.tinted => ELayout.radiusMd,
+          ESurfaceKind.tinted => ELayout.radiusSm,
         });
 
     final content = padding == null

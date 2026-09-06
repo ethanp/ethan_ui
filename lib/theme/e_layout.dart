@@ -30,6 +30,10 @@ abstract final class ELayout() {
   /// Comfortable width for identity + status rows (history, settings lists).
   static const feedContentMaxWidth = 560.0;
 
+  /// Modal bottom sheets on desktop. Material 3 caps these at 640, which
+  /// starves categorize / rule sheets that have chip grids and long patterns.
+  static const sheetMaxWidth = 1200.0;
+
   /// Desktop sits farther from the eye — scale type/icons up on macOS.
   static double get typeScale => Platform.isMacOS ? 1.25 : 1.0;
 

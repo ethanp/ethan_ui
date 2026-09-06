@@ -114,6 +114,10 @@ abstract final class ETheme() {
           side: BorderSide(color: EColors.border),
         ),
       ),
+      bottomSheetTheme: const BottomSheetThemeData(
+        constraints: BoxConstraints(maxWidth: ELayout.sheetMaxWidth),
+        backgroundColor: Colors.transparent,
+      ),
       dialogTheme: DialogThemeData(
         backgroundColor: EColors.surface,
         titleTextStyle: EText.section,

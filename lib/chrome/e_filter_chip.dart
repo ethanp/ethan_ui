@@ -11,6 +11,7 @@ class const EFilterChip({
   required final bool selected,
   required final VoidCallback onActivated,
   final IconData? icon,
+  final bool compact = false,
 }) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -18,9 +19,9 @@ class const EFilterChip({
       onTap: onActivated,
       behavior: HitTestBehavior.opaque,
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: ELayout.spaceMd,
-          vertical: ELayout.spaceSm,
+        padding: EdgeInsets.symmetric(
+          horizontal: compact ? ELayout.spaceSm : ELayout.spaceMd,
+          vertical: compact ? ELayout.spaceXs : ELayout.spaceSm,
         ),
         decoration: BoxDecoration(
           color: color.withValues(alpha: selected ? 0.28 : 0.14),
@@ -34,7 +35,7 @@ class const EFilterChip({
           mainAxisSize: MainAxisSize.min,
           children: [
             if (icon != null) ...[
-              Icon(icon, size: 14, color: color),
+              Icon(icon, size: compact ? 12 : 14, color: color),
               const SizedBox(width: 4),
             ],
             Text(
