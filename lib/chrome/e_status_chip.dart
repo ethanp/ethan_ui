@@ -13,6 +13,7 @@ enum EStatusTone({
   final double fillAlpha = 0.85,
 }) {
   accent(foreground: EColors.accentGlow, background: EColors.accentSoft),
+  pending(foreground: EColors.pending, background: EColors.pendingSoft),
   success(foreground: EColors.success, background: EColors.successSoft),
   warning(foreground: EColors.warning, background: EColors.warningSoft),
   danger(foreground: EColors.danger, background: EColors.dangerSoft),

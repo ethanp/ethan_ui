@@ -32,6 +32,8 @@ abstract final class EColors() {
 
   static const success = Color(0xFF81C784);
   static const successSoft = Color(0xFF1E3324);
+  static const pending = Color(0xFF6EC4D2);
+  static const pendingSoft = Color(0xFF17343A);
   static const warning = Color(0xFFFFB74D);
   static const warningSoft = Color(0xFF3A2E12);
   static const danger = Color(0xFFE57373);

@@ -29,4 +29,5 @@ export 'chrome/e_tinted_action.dart';
 export 'chrome/e_toolbar.dart';
 
 export 'widgets/e_panel.dart';
+export 'widgets/e_text_field.dart';
 export 'widgets/log_console.dart';
