@@ -19,11 +19,13 @@ class const EChartHitTest({
     var closestDistance = maxDistance;
     for (var lineIndex = 0; lineIndex < lines.length; lineIndex++) {
       final line = lines[lineIndex];
+      if (!line.isInteractive) continue;
       for (var pointIndex = 0; pointIndex < line.points.length; pointIndex++) {
         final point = line.points[pointIndex];
-        final distance = (Offset(plot.xForDate(point.date), plot.yForValue(point.value)) -
-                local)
-            .distance;
+        final distance =
+            (Offset(plot.xForDate(point.date), plot.yForValue(point.value)) -
+                    local)
+                .distance;
         if (distance <= closestDistance) {
           closestDistance = distance;
           closest = EChartSelectedPoint(

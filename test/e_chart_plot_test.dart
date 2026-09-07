@@ -87,5 +87,35 @@ void main() {
       expect(nearHigh?.point.value, 90);
       expect(nearHigh?.lineIndex, 1);
     });
+
+    test('non-interactive projection lines are ignored', () {
+      final plot = EChartPlot(
+        size: const Size(400, 220),
+        start: DateTime(2026, 1, 1),
+        end: DateTime(2026, 1, 3),
+        valueScale: EChartValueScale.fixed(
+          min: 0,
+          max: 100,
+          ticks: const [0, 100],
+        ),
+      );
+      final loggedPoint = EChartPoint(date: DateTime(2026, 1, 2), value: 40);
+      final projectedPoint = EChartPoint(date: DateTime(2026, 1, 2), value: 42);
+      final hit =
+          EChartHitTest(
+            plot: plot,
+            lines: [
+              EChartLine(points: [loggedPoint]),
+              EChartLine(points: [projectedPoint], isInteractive: false),
+            ],
+          ).nearestPoint(
+            Offset(
+              plot.xForDate(projectedPoint.date),
+              plot.yForValue(projectedPoint.value),
+            ),
+          );
+
+      expect(hit?.point, same(loggedPoint));
+    });
   });
 }

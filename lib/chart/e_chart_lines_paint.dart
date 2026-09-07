@@ -13,7 +13,9 @@ class const EChartLinesPaint({
 }) {
   void paint(Canvas canvas) {
     canvas.save();
-    canvas.clipRect(Rect.fromLTRB(plot.left, plot.top, plot.right, plot.bottom));
+    canvas.clipRect(
+      Rect.fromLTRB(plot.left, plot.top, plot.right, plot.bottom),
+    );
     final selectedLineIndex = selectedPoint?.lineIndex;
     for (var lineIndex = 0; lineIndex < lines.length; lineIndex++) {
       if (lineIndex == selectedLineIndex) continue;
@@ -33,7 +35,7 @@ class const EChartLinesPaint({
       for (final point in line.points)
         Offset(plot.xForDate(point.date), plot.yForValue(point.value)),
     ];
-    if (offsets.length >= 2) {
+    if (offsets.length >= 2 && (line.showStroke || line.fillColor != null)) {
       final path = line.stroke.pathThrough(offsets);
       if (line.fillColor != null) {
         final fill = Path.from(path)
@@ -47,15 +49,22 @@ class const EChartLinesPaint({
             ..style = PaintingStyle.fill,
         );
       }
-      canvas.drawPath(
-        path,
-        Paint()
-          ..color = line.color
-          ..strokeWidth = line.strokeWidth
-          ..style = PaintingStyle.stroke
-          ..strokeJoin = StrokeJoin.round
-          ..strokeCap = StrokeCap.round,
-      );
+      if (line.showStroke) {
+        switch (line.pattern) {
+          case EChartLinePattern.solid:
+            canvas.drawPath(
+              path,
+              Paint()
+                ..color = line.color
+                ..strokeWidth = line.strokeWidth
+                ..style = PaintingStyle.stroke
+                ..strokeJoin = StrokeJoin.round
+                ..strokeCap = StrokeCap.round,
+            );
+          case EChartLinePattern.dotted:
+            _paintDottedPath(canvas, path, line);
+        }
+      }
     }
     if (!line.showDots) return;
     for (var pointIndex = 0; pointIndex < line.points.length; pointIndex++) {
@@ -68,6 +77,20 @@ class const EChartLinesPaint({
             selectedPoint!.lineIndex == lineIndex &&
             selectedPoint!.pointIndex == pointIndex,
       );
+    }
+  }
+
+  void _paintDottedPath(Canvas canvas, Path path, EChartLine line) {
+    final dotPaint = Paint()
+      ..color = line.color
+      ..style = PaintingStyle.fill;
+    final gap = line.strokeWidth * 3;
+    for (final pathMetric in path.computeMetrics()) {
+      for (var distance = 0.0; distance <= pathMetric.length; distance += gap) {
+        final tangent = pathMetric.getTangentForOffset(distance);
+        if (tangent == null) continue;
+        canvas.drawCircle(tangent.position, line.strokeWidth / 2, dotPaint);
+      }
     }
   }
 
