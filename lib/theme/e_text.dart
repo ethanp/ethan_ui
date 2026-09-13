@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'e_colors.dart';
 import 'e_layout.dart';
@@ -19,8 +18,7 @@ abstract final class EText() {
     '.SF Pro Text',
   ];
 
-  static String? get _ibmPlexMonoFamily =>
-      GoogleFonts.ibmPlexMono().fontFamily;
+  static const _ibmPlexMonoFamily = 'IBMPlexMono';
 
   static double _size(double phoneSize) => ELayout.typeSize(phoneSize);
 

@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'e_colors.dart';
 import 'e_input.dart';
@@ -8,6 +11,7 @@ import 'e_text.dart';
 
 abstract final class ETheme() {
   static ThemeData get material3Dark {
+    _ensureIbmPlexMono();
     final colorScheme = ColorScheme.dark(
       surface: EColors.surface,
       primary: EColors.accent,
@@ -180,5 +184,61 @@ abstract final class ETheme() {
         displayColor: EColors.textPrimary,
       ),
     );
+  }
+
+  static void _ensureIbmPlexMono() {
+    if (!GoogleFonts.config.allowRuntimeFetching) return;
+    GoogleFonts.ibmPlexMono();
+  }
+
+  /// Widget tests use Ahem / empty icon glyphs unless these are registered.
+  static Future<void> loadFontsForWidgetTests() async {
+    GoogleFonts.config.allowRuntimeFetching = false;
+    final fontsDir = _materialFontsDir();
+    if (fontsDir == null) return;
+
+    await _loadFamilyFromFile(
+      fontsDir,
+      fileName: 'Roboto-Regular.ttf',
+      families: const [
+        'IBMPlexMono',
+        'CupertinoSystemText',
+        'Roboto',
+        '.AppleSystemUIFont',
+        '.SF Pro Text',
+      ],
+    );
+    await _loadFamilyFromFile(
+      fontsDir,
+      fileName: 'MaterialIcons-Regular.otf',
+      families: const ['MaterialIcons'],
+    );
+  }
+
+  static Future<void> _loadFamilyFromFile(
+    String fontsDir, {
+    required String fileName,
+    required List<String> families,
+  }) async {
+    final fontFile = File('$fontsDir/$fileName');
+    if (!fontFile.existsSync()) return;
+    final bytes = await fontFile.readAsBytes();
+    for (final family in families) {
+      final loader = FontLoader(family);
+      loader.addFont(Future.value(ByteData.sublistView(bytes)));
+      await loader.load();
+    }
+  }
+
+  static String? _materialFontsDir() {
+    final flutterRoot = Platform.environment['FLUTTER_ROOT'];
+    if (flutterRoot != null) {
+      final bundled = '$flutterRoot/bin/cache/artifacts/material_fonts';
+      if (Directory(bundled).existsSync()) return bundled;
+    }
+    const homebrew =
+        '/opt/homebrew/share/flutter/bin/cache/artifacts/material_fonts';
+    if (Directory(homebrew).existsSync()) return homebrew;
+    return null;
   }
 }

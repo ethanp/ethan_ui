@@ -1,5 +1,4 @@
-import 'dart:io';
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 /// Layout tokens for the machined-console theme: radii, spacing, type scale.
@@ -34,17 +33,22 @@ abstract final class ELayout() {
   /// starves categorize / rule sheets that have chip grids and long patterns.
   static const sheetMaxWidth = 1200.0;
 
-  /// Desktop sits farther from the eye — scale type/icons up on macOS.
-  static double get typeScale => Platform.isMacOS ? 1.25 : 1.0;
+  /// Desktop sits farther from the eye — scale type/icons up on the macOS
+  /// Flutter target (not the host OS). Widget tests can override with
+  /// [debugDefaultTargetPlatformOverride] so phone README screenshots use 1.0.
+  static bool get _isMacosTarget =>
+      defaultTargetPlatform == TargetPlatform.macOS;
+
+  static double get typeScale => _isMacosTarget ? 1.25 : 1.0;
 
   /// Large hero / detail icon tile.
-  static double get iconTile => Platform.isMacOS ? 88.0 : 72.0;
+  static double get iconTile => _isMacosTarget ? 88.0 : 72.0;
 
   /// Dense list-row leading icon beside the title.
-  static double get listRowIcon => Platform.isMacOS ? 52.0 : 44.0;
+  static double get listRowIcon => _isMacosTarget ? 52.0 : 44.0;
 
   /// Preferred width for icon+title leading columns.
-  static double get listRowLeadingWidth => Platform.isMacOS ? 200.0 : 168.0;
+  static double get listRowLeadingWidth => _isMacosTarget ? 200.0 : 168.0;
 
   static double typeSize(double phoneSize) => phoneSize * typeScale;
 
