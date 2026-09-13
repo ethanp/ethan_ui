@@ -1,20 +1,18 @@
-import 'e_chart_line.dart';
-
-/// The line and point chosen on a chart.
-class const EChartSelectedPoint({
-  required final EChartLine line,
-  required final EChartPoint point,
-  required final int lineIndex,
-  required final int pointIndex,
+/// The series and point chosen on a chart, identified by host-stamped ids.
+class const EChartSelectedPoint<T extends Object>({
+  required final String seriesId,
+  required final T pointId,
+  required final DateTime date,
+  required final double value,
 }) {
   @override
   bool operator ==(Object other) =>
-      other is EChartSelectedPoint &&
-      other.lineIndex == lineIndex &&
-      other.pointIndex == pointIndex &&
-      identical(other.line, line) &&
-      identical(other.point, point);
+      other is EChartSelectedPoint<T> &&
+      other.seriesId == seriesId &&
+      other.pointId == pointId &&
+      other.date == date &&
+      other.value == value;
 
   @override
-  int get hashCode => Object.hash(lineIndex, pointIndex, line, point);
+  int get hashCode => Object.hash(seriesId, pointId, date, value);
 }

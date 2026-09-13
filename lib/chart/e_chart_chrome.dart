@@ -4,13 +4,16 @@ import '../theme/e_chart_axis.dart';
 import 'e_chart_plot.dart';
 
 /// Edges, date ticks, value ticks, and year guides around a plot.
-class const EChartChrome(final EChartPlot plot) {
+class const EChartChrome(
+  final EChartPlot plot, {
+  final bool paintsValueTicks = true,
+}) {
   void paint(Canvas canvas) {
     paintValueGrid(canvas);
     strokePlotEdges(canvas);
     paintYearBoundaryGuides(canvas);
     paintDateTicks(canvas);
-    paintValueTicks(canvas);
+    if (paintsValueTicks) paintValueTicks(canvas);
   }
 
   void paintValueGrid(Canvas canvas) {
@@ -98,13 +101,12 @@ class const EChartChrome(final EChartPlot plot) {
         textAlign: TextAlign.right,
         textDirection: TextDirection.ltr,
       )..layout();
-      final labelY = (plot.yForValue(tick) - textPainter.height / 2).clamp(
-        plot.top - 2,
-        plot.bottom - textPainter.height,
-      );
       textPainter.paint(
         canvas,
-        Offset(plot.left - textPainter.width - 4, labelY),
+        Offset(
+          plot.left - textPainter.width - 4,
+          plot.yForValue(tick) - textPainter.height / 2,
+        ),
       );
     }
   }

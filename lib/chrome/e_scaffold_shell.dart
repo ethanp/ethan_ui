@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../theme/e_colors.dart';
 import '../theme/e_layout.dart';
+import 'e_overlaid_tab_bar.dart';
 import 'e_surface.dart';
+import 'e_tab_bar.dart';
 
 /// Standard screen shell: ambient metal backdrop + centered content column.
 ///
@@ -51,13 +53,30 @@ class const EScaffoldShell({
                       minHeight: constraints.maxHeight,
                       maxHeight: constraints.maxHeight,
                     ),
-                    child: body,
+                    child: _bodyWithOverlaidTabBar(context),
                   );
                 },
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _bodyWithOverlaidTabBar(BuildContext context) {
+    if (bottomBar == null) return body;
+    final MediaQueryData media = MediaQuery.of(context);
+    final double bottomInset = media.padding.bottom > ETabBar.occupiedHeight
+        ? media.padding.bottom
+        : ETabBar.occupiedHeight;
+    return EOverlaidTabBar(
+      height: ETabBar.occupiedHeight,
+      child: MediaQuery(
+        data: media.copyWith(
+          padding: media.padding.copyWith(bottom: bottomInset),
+        ),
+        child: body,
       ),
     );
   }

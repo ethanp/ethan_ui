@@ -20,6 +20,31 @@ void main() {
       expect(scale.caption(DateTime(2025)), '2025');
     });
 
+    test('a wide 12-month plot ticks each month, including across years', () {
+      final scale = EChartDateScale(
+        start: DateTime(2025, 10, 1),
+        end: DateTime(2026, 9, 12),
+        plotWidth: 2200,
+      );
+
+      expect(scale.tickDays, [
+        DateTime(2025, 10, 1),
+        DateTime(2025, 11, 1),
+        DateTime(2025, 12, 1),
+        DateTime(2026, 1, 1),
+        DateTime(2026, 2, 1),
+        DateTime(2026, 3, 1),
+        DateTime(2026, 4, 1),
+        DateTime(2026, 5, 1),
+        DateTime(2026, 6, 1),
+        DateTime(2026, 7, 1),
+        DateTime(2026, 8, 1),
+        DateTime(2026, 9, 1),
+      ]);
+      expect(scale.caption(DateTime(2025, 10, 1)), 'Oct 25');
+      expect(scale.caption(DateTime(2026, 9, 1)), 'Sep 26');
+    });
+
     test('same-year multi-month charts keep quarter-month ticks', () {
       final scale = EChartDateScale(
         start: DateTime(2026, 2, 1),

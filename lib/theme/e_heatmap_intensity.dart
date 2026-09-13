@@ -2,36 +2,31 @@ import 'package:flutter/material.dart';
 
 import 'e_colors.dart';
 
-/// Sequential activity heat on dark metal: slate → teal → lamp gold.
+/// Sequential activity heat on dark metal: graphite → bronze → brass → lamp gold.
 ///
-/// Colors live on each constant (Bloch-style). [colorAt] lerps adjacent stops
-/// for continuous calendars; discrete grids use the constants directly.
+/// One warm-metal family, even lightness and opacity steps. Peak fill is 0.7
+/// opaque. Colors live on each constant (Bloch-style). [colorAt] lerps adjacent
+/// stops; calendars pass [EHeatmapScale.intensityFor] so values move toward
+/// either side of their band.
 enum EHeatmapIntensity({
   required final Color color,
   required final Color ink,
   required final int percentOfMax,
 }) {
   none(color: Color(0xFF252A3A), ink: EColors.textMuted, percentOfMax: 0),
-  low(color: Color(0xFF1F5C68), ink: EColors.textPrimary, percentOfMax: 25),
-  mid(color: Color(0xFF1A8F82), ink: EColors.textPrimary, percentOfMax: 50),
-  high(color: Color(0xFFC9A227), ink: EColors.surfaceInset, percentOfMax: 75),
-  peak(color: Color(0xFFF3E07A), ink: EColors.surfaceInset, percentOfMax: 100);
+  low(color: Color(0x40534A32), ink: EColors.textPrimary, percentOfMax: 25),
+  mid(color: Color(0x669A8440), ink: EColors.textPrimary, percentOfMax: 50),
+  high(color: Color(0x8CD4B84C), ink: EColors.surfaceInset, percentOfMax: 75),
+  peak(color: Color(0xB3F3E07A), ink: EColors.surfaceInset, percentOfMax: 100);
 
   String get percentOfMaxLabel => upperBoundCaption(percentOfMax);
 
   int quantityAtMax(num max) => (percentOfMax / 100.0 * max).round();
 
-  String quantityUpperBoundCaption(num max) =>
-      upperBoundCaption(quantityAtMax(max));
-
   String upperBoundCaption(num quantity) {
     if (this == none) return '0%';
     return '≤${quantity.round()}%';
   }
-
-  static List<Widget> get legendSwatches => [
-    for (final level in values) EHeatmapLegendSwatch(level: level),
-  ];
 
   static BorderSide get cellHairline => BorderSide(
     color: EColors.borderStrong.withValues(alpha: 0.45),
@@ -43,6 +38,18 @@ enum EHeatmapIntensity({
   static EHeatmapIntensity nearest(double intensity) {
     final index = (intensity.clamp(0.0, 1.0) * (values.length - 1)).round();
     return values[index];
+  }
+
+  static double intensityBetweenBounds({
+    required num quantity,
+    required num fromBound,
+    required num toBound,
+    required double fromIntensity,
+    required double toIntensity,
+  }) {
+    if (toBound <= fromBound) return toIntensity;
+    final t = ((quantity - fromBound) / (toBound - fromBound)).clamp(0.0, 1.0);
+    return fromIntensity + (toIntensity - fromIntensity) * t;
   }
 
   static Color colorAt(double intensity) {
@@ -57,11 +64,6 @@ enum EHeatmapIntensity({
   }
 
   static Color inkAt(double intensity) => nearest(intensity).ink;
-
-  static Color colorForQuantity(num quantity, {required num max}) {
-    if (quantity <= 0 || max <= 0) return none.color;
-    return colorAt(quantity / max);
-  }
 }
 
 class const EHeatmapLegendSwatch({

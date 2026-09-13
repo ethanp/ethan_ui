@@ -194,17 +194,26 @@ class ETintedAction extends StatelessWidget {
         builder: (context, constraints) {
           // Expanded requires a bounded max width; callers sometimes pass
           // unbounded (e.g. Wrap / loose parents).
-          final label = constraints.maxWidth.isFinite
-              ? Expanded(child: labelColumn)
-              : labelColumn;
+          final bool bounded = constraints.maxWidth.isFinite;
+          final bool showLabel =
+              !bounded || constraints.maxWidth >= 16 + ELayout.spaceSm + 20;
+          if (!showLabel) {
+            return Tooltip(
+              message: title,
+              child: Center(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Icon(icon, size: 16, color: accent),
+                ),
+              ),
+            );
+          }
           return Row(
-            mainAxisSize: constraints.maxWidth.isFinite
-                ? MainAxisSize.max
-                : MainAxisSize.min,
+            mainAxisSize: bounded ? MainAxisSize.max : MainAxisSize.min,
             children: [
               Icon(icon, size: 16, color: accent),
               const SizedBox(width: ELayout.spaceSm),
-              label,
+              if (bounded) Expanded(child: labelColumn) else labelColumn,
               if (trailing != null) ...[
                 const SizedBox(width: ELayout.spaceXs),
                 trailing!,

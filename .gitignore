@@ -9,6 +9,7 @@ build/
 .idea/
 *.iml
 .vscode/
+.cursor/
 
 # macOS
 .DS_Store

@@ -38,9 +38,10 @@ class const EProgressMeter({
               fontWeight: FontWeight.w600,
             ),
           ),
-        const Spacer(),
+        if (leadingLabel != null && trailingLabel != null)
+          const SizedBox(width: 8),
         if (trailingLabel != null)
-          Flexible(
+          Expanded(
             child: Text(
               trailingLabel!,
               style: EText.caption,

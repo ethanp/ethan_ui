@@ -44,6 +44,8 @@ class const EStatusChip({
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       child: Text(
         uppercase ? label.toUpperCase() : label,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
         style: EText.label.small.copyWith(
           color: tone.foreground,
           letterSpacing: uppercase ? 0.8 : 0.4,

@@ -63,7 +63,7 @@ void main() {
   });
 
   group('EChartHitTest', () {
-    test('nearest point wins by pixel distance', () {
+    test('nearest point wins by pixel distance and returns stamped ids', () {
       final plot = EChartPlot(
         size: const Size(400, 220),
         start: DateTime(2026, 1, 1),
@@ -74,21 +74,28 @@ void main() {
           ticks: const [0, 100],
         ),
       );
-      final low = EChartPoint(date: DateTime(2026, 1, 2), value: 10);
-      final high = EChartPoint(date: DateTime(2026, 1, 2), value: 90);
-      final lines = [
-        EChartLine(points: [low]),
-        EChartLine(points: [high]),
-      ];
-      final hit = EChartHitTest(plot: plot, lines: lines);
+      final low = EChartPoint(date: DateTime(2026, 1, 2), value: 10, id: 'low');
+      final high = EChartPoint(
+        date: DateTime(2026, 1, 2),
+        value: 90,
+        id: 'high',
+      );
+      final hit = EChartHitTest(
+        plot: plot,
+        series: [
+          EChartSeries.dots(id: 'lows', points: [low]),
+          EChartSeries.dots(id: 'highs', points: [high]),
+        ],
+      );
       final nearHigh = hit.nearestPoint(
         Offset(plot.xForDate(high.date), plot.yForValue(high.value) + 4),
       );
-      expect(nearHigh?.point.value, 90);
-      expect(nearHigh?.lineIndex, 1);
+      expect(nearHigh?.pointId, 'high');
+      expect(nearHigh?.seriesId, 'highs');
+      expect(nearHigh?.value, 90);
     });
 
-    test('non-interactive projection lines are ignored', () {
+    test('non-interactive projection series are ignored', () {
       final plot = EChartPlot(
         size: const Size(400, 220),
         start: DateTime(2026, 1, 1),
@@ -99,14 +106,26 @@ void main() {
           ticks: const [0, 100],
         ),
       );
-      final loggedPoint = EChartPoint(date: DateTime(2026, 1, 2), value: 40);
-      final projectedPoint = EChartPoint(date: DateTime(2026, 1, 2), value: 42);
+      final loggedPoint = EChartPoint(
+        date: DateTime(2026, 1, 2),
+        value: 40,
+        id: 'logged',
+      );
+      final projectedPoint = EChartPoint(
+        date: DateTime(2026, 1, 2),
+        value: 42,
+        id: 'projected',
+      );
       final hit =
           EChartHitTest(
             plot: plot,
-            lines: [
-              EChartLine(points: [loggedPoint]),
-              EChartLine(points: [projectedPoint], isInteractive: false),
+            series: [
+              EChartSeries.dots(id: 'logged', points: [loggedPoint]),
+              EChartSeries.line(
+                id: 'projected',
+                points: [projectedPoint],
+                hits: EChartPointHits.ignore,
+              ),
             ],
           ).nearestPoint(
             Offset(
@@ -115,7 +134,38 @@ void main() {
             ),
           );
 
-      expect(hit?.point, same(loggedPoint));
+      expect(hit?.pointId, 'logged');
+      expect(hit?.seriesId, 'logged');
     });
+
+    test(
+      'selection equality is by series and point id, not object identity',
+      () {
+        final first = EChartSelectedPoint(
+          seriesId: 'events',
+          pointId: 7,
+          date: DateTime(2026, 1, 2),
+          value: 40,
+        );
+        final rebuilt = EChartSelectedPoint(
+          seriesId: 'events',
+          pointId: 7,
+          date: DateTime(2026, 1, 2),
+          value: 40,
+        );
+        expect(first, rebuilt);
+        expect(
+          first,
+          isNot(
+            EChartSelectedPoint(
+              seriesId: 'events',
+              pointId: 8,
+              date: DateTime(2026, 1, 2),
+              value: 40,
+            ),
+          ),
+        );
+      },
+    );
   });
 }
