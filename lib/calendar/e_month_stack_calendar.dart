@@ -2,10 +2,13 @@ import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/material.dart';
 
 import '../theme/e_colors.dart';
-import '../theme/e_heatmap_intensity.dart';
 import '../theme/e_layout.dart';
 import '../theme/e_text.dart';
 import 'e_calendar_day_presentation.dart';
+import 'e_month_stack_day_chrome.dart';
+import 'e_month_stack_metrics.dart';
+import 'e_month_stack_multi_select.dart';
+import 'e_month_stack_period_summary.dart';
 
 class const EMonthStackCalendar<TId>({
   required final DateTime firstVisibleMonth,
@@ -36,8 +39,7 @@ class const EMonthStackCalendar<TId>({
 class _EMonthStackCalendarState<TId>() extends State<EMonthStackCalendar<TId>> {
   ScrollController? _verticalScroll;
   DateTime? _selectedDate;
-  bool _isSelectingDays = false;
-  final Set<DateTime> _multiSelectedDates = {};
+  final EMonthStackMultiSelect _multiSelect = EMonthStackMultiSelect();
 
   @override
   void initState() {
@@ -75,7 +77,7 @@ class _EMonthStackCalendarState<TId>() extends State<EMonthStackCalendar<TId>> {
 
     final grid = LayoutBuilder(
       builder: (context, constraints) {
-        final metrics = _MonthStackMetrics.fit(
+        final metrics = EMonthStackMetrics.fit(
           availableWidth: constraints.maxWidth,
           showsPeriodSummaries: _showsPeriodSummaries,
         );
@@ -101,7 +103,7 @@ class _EMonthStackCalendarState<TId>() extends State<EMonthStackCalendar<TId>> {
           )
         else
           grid,
-        if (_isSelectingDays) ...[
+        if (_multiSelect.isSelecting) ...[
           const SizedBox(height: ELayout.spaceMd),
           _multiSelectActionBar(),
         ],
@@ -144,7 +146,7 @@ class _EMonthStackCalendarState<TId>() extends State<EMonthStackCalendar<TId>> {
     return false;
   }
 
-  Widget _month(DateTime monthStart, _MonthStackMetrics metrics) {
+  Widget _month(DateTime monthStart, EMonthStackMetrics metrics) {
     final daysInMonth = DateTime(monthStart.year, monthStart.month + 1, 0).day;
     return Padding(
       padding: const EdgeInsets.only(bottom: ELayout.spaceMd),
@@ -190,7 +192,7 @@ class _EMonthStackCalendarState<TId>() extends State<EMonthStackCalendar<TId>> {
   bool get _showsPeriodSummaries =>
       widget.weekPresentation != null || widget.monthPresentation != null;
 
-  Widget _monthHeader(DateTime monthStart, _MonthStackMetrics metrics) {
+  Widget _monthHeader(DateTime monthStart, EMonthStackMetrics metrics) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 2, left: 4),
       child: Row(
@@ -212,23 +214,23 @@ class _EMonthStackCalendarState<TId>() extends State<EMonthStackCalendar<TId>> {
     );
   }
 
-  Widget _monthSummary(DateTime monthStart, _MonthStackMetrics metrics) {
+  Widget _monthSummary(DateTime monthStart, EMonthStackMetrics metrics) {
     final presentation = widget.monthPresentation?.call(monthStart);
     return Padding(
-      padding: const EdgeInsets.only(left: _MonthStackMetrics.summaryGap),
+      padding: const EdgeInsets.only(left: EMonthStackMetrics.summaryGap),
       child: SizedBox(
         key: ValueKey(
           'e-cal-month-${monthStart.year}-${monthStart.month}',
         ),
         width: metrics.summaryWidth,
         child: presentation != null && !presentation.isEmpty
-            ? _PeriodSummaryChrome(presentation: presentation)
+            ? EMonthStackPeriodSummary(presentation: presentation)
             : null,
       ),
     );
   }
 
-  Widget _weekdayHeaders(_MonthStackMetrics metrics) {
+  Widget _weekdayHeaders(EMonthStackMetrics metrics) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -246,7 +248,7 @@ class _EMonthStackCalendarState<TId>() extends State<EMonthStackCalendar<TId>> {
           ),
         if (metrics.showsPeriodSummaries)
           SizedBox(
-            width: metrics.summaryWidth + _MonthStackMetrics.summaryGap,
+            width: metrics.summaryWidth + EMonthStackMetrics.summaryGap,
           ),
       ],
     );
@@ -255,7 +257,7 @@ class _EMonthStackCalendarState<TId>() extends State<EMonthStackCalendar<TId>> {
   List<Widget> _weekRows(
     DateTime monthStart,
     int daysInMonth,
-    _MonthStackMetrics metrics,
+    EMonthStackMetrics metrics,
   ) {
     final firstWeekday = DateTime(monthStart.year, monthStart.month, 1).weekday;
     final totalSlots = firstWeekday - 1 + daysInMonth;
@@ -271,7 +273,7 @@ class _EMonthStackCalendarState<TId>() extends State<EMonthStackCalendar<TId>> {
     int daysInMonth,
     int week,
     int firstWeekday,
-    _MonthStackMetrics metrics,
+    EMonthStackMetrics metrics,
   ) {
     final cells = <Widget>[];
     var sundayIsInMonth = false;
@@ -315,7 +317,7 @@ class _EMonthStackCalendarState<TId>() extends State<EMonthStackCalendar<TId>> {
     int week,
     int firstWeekday,
     bool sundayIsInMonth,
-    _MonthStackMetrics metrics,
+    EMonthStackMetrics metrics,
   ) {
     ECalendarPeriodPresentation? presentation;
     if (sundayIsInMonth) {
@@ -328,11 +330,11 @@ class _EMonthStackCalendarState<TId>() extends State<EMonthStackCalendar<TId>> {
       presentation = widget.weekPresentation!(sunday.shiftedByDays(-6));
     }
     return Padding(
-      padding: const EdgeInsets.only(left: _MonthStackMetrics.summaryGap),
+      padding: const EdgeInsets.only(left: EMonthStackMetrics.summaryGap),
       child: SizedBox(
         width: metrics.summaryWidth,
         child: presentation != null && !presentation.isEmpty
-            ? _PeriodSummaryChrome(presentation: presentation)
+            ? EMonthStackPeriodSummary(presentation: presentation)
             : null,
       ),
     );
@@ -340,23 +342,24 @@ class _EMonthStackCalendarState<TId>() extends State<EMonthStackCalendar<TId>> {
 
   Widget _dayTile(
     ECalendarDayPresentation<TId> presentation,
-    _MonthStackMetrics metrics,
+    EMonthStackMetrics metrics,
   ) {
     final date = presentation.date.startOfDay;
     final isToday = date.sameDayAs(_today);
     final isPersistSelected =
         widget.persistSelection && _selectedDate?.sameDayAs(date) == true;
-    final isMultiSelected = _multiSelectedDates.any(date.sameDayAs);
+    final isMultiSelected = _multiSelect.contains(date);
 
     return GestureDetector(
       onTap: () => _activateDay(presentation),
-      onLongPress: widget.onMultiSelectConfirmed != null && !_isSelectingDays
-          ? () => _enterMultiSelect(date)
+      onLongPress: widget.onMultiSelectConfirmed != null &&
+              !_multiSelect.isSelecting
+          ? () => setState(() => _multiSelect.enter(date))
           : null,
       child: Semantics(
         button: true,
         label: presentation.semanticsLabel,
-        child: _MonthStackDayChrome(
+        child: EMonthStackDayChrome(
           key: ValueKey('e-cal-day-${date.year}-${date.month}-${date.day}'),
           presentation: presentation,
           cellSize: metrics.cellSize,
@@ -370,14 +373,8 @@ class _EMonthStackCalendarState<TId>() extends State<EMonthStackCalendar<TId>> {
 
   void _activateDay(ECalendarDayPresentation<TId> presentation) {
     final date = presentation.date.startOfDay;
-    if (_isSelectingDays) {
-      setState(() {
-        if (_multiSelectedDates.any(date.sameDayAs)) {
-          _multiSelectedDates.removeWhere(date.sameDayAs);
-        } else {
-          _multiSelectedDates.add(date);
-        }
-      });
+    if (_multiSelect.isSelecting) {
+      setState(() => _multiSelect.toggle(date));
       return;
     }
     if (widget.persistSelection) {
@@ -388,245 +385,20 @@ class _EMonthStackCalendarState<TId>() extends State<EMonthStackCalendar<TId>> {
     widget.onDaySelected(presentation);
   }
 
-  void _enterMultiSelect(DateTime date) {
-    setState(() {
-      _isSelectingDays = true;
-      _multiSelectedDates
-        ..clear()
-        ..add(date.startOfDay);
-    });
-  }
-
-  void _exitMultiSelect() {
-    setState(() {
-      _isSelectingDays = false;
-      _multiSelectedDates.clear();
-    });
-  }
-
   Widget _multiSelectActionBar() {
-    final selectedCount = _multiSelectedDates.length;
-    final actionLabel = widget.multiSelectActionLabel ?? 'Confirm';
-    final dayWord = selectedCount == 1 ? 'day' : 'days';
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        TextButton(
-          onPressed: _exitMultiSelect,
-          child: Text('Cancel', style: EText.body.medium.copyWith(color: EColors.textMuted)),
-        ),
-        TextButton(
-          onPressed: selectedCount > 0
-              ? () {
-                  final days = _multiSelectedDates.toList()
-                    ..sort((a, b) => a.compareTo(b));
-                  widget.onMultiSelectConfirmed!(
-                    days.map(widget.presentationFor).toList(),
-                  );
-                  _exitMultiSelect();
-                }
-              : null,
-          child: Text(
-            '$selectedCount $dayWord · $actionLabel',
-            style: EText.body.medium.copyWith(
-              color: selectedCount > 0 ? EColors.accent : EColors.textMuted,
-              fontWeight: selectedCount > 0 ? FontWeight.w600 : FontWeight.w400,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class const _MonthStackMetrics({
-  required final double cellSize,
-  required final double cellExtent,
-  required final double summaryWidth,
-  required final bool showsPeriodSummaries,
-}) {
-  static const preferredCellSize = 39.0;
-  static const cellMargin = 2.0;
-  static const preferredCellExtent = preferredCellSize + cellMargin * 2;
-  static const preferredSummaryWidth = 80.0;
-  static const summaryGap = 8.0;
-  static const minCellSize = 24.0;
-
-  static _MonthStackMetrics fit({
-    required double availableWidth,
-    required bool showsPeriodSummaries,
-  }) {
-    final summaryGutter = showsPeriodSummaries
-        ? summaryGap + preferredSummaryWidth
-        : 0.0;
-    final widthForCells = availableWidth.isFinite
-        ? availableWidth - summaryGutter
-        : preferredCellExtent * DateTime.daysPerWeek;
-    final minExtent = minCellSize + cellMargin * 2;
-    final cellExtent = (widthForCells / DateTime.daysPerWeek).clamp(
-      minExtent,
-      preferredCellExtent,
-    );
-    return _MonthStackMetrics(
-      cellSize: cellExtent - cellMargin * 2,
-      cellExtent: cellExtent,
-      summaryWidth: preferredSummaryWidth,
-      showsPeriodSummaries: showsPeriodSummaries,
-    );
-  }
-}
-
-class const _MonthStackDayChrome({
-  super.key,
-  required final ECalendarDayPresentation<dynamic> presentation,
-  required final double cellSize,
-  required final bool isToday,
-  required final bool isSelected,
-  required final bool showsMultiSelectCheck,
-}) extends StatelessWidget {
-
-  @override
-  Widget build(BuildContext context) {
-    final visual = presentation.visual;
-    return Container(
-      width: cellSize,
-      height: cellSize,
-      margin: const EdgeInsets.all(_MonthStackMetrics.cellMargin),
-      decoration: BoxDecoration(
-        color: isSelected
-            ? EColors.accent.withValues(alpha: 0.25)
-            : visual.fill,
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(
-          color: isSelected
-              ? EColors.accent
-              : isToday
-              ? EHeatmapIntensity.todayRing
-              : visual is ECalendarDayEmpty
-              ? EHeatmapIntensity.cellHairline.color
-              : visual.fill.withValues(alpha: 0.6),
-          width: isSelected
-              ? 2
-              : isToday
-              ? 1.5
-              : EHeatmapIntensity.cellHairline.width,
-        ),
-        boxShadow: visual.showsMeasuredGlow && !isSelected
-            ? [
-                BoxShadow(
-                  color: visual.fill.withValues(alpha: 0.3),
-                  blurRadius: 3,
-                  offset: const Offset(0, 1),
-                ),
-              ]
-            : null,
-      ),
-      child: showsMultiSelectCheck
-          ? const Center(child: Icon(Icons.check, size: 16, color: EColors.accent))
-          : _labels(visual),
-    );
-  }
-
-  Widget _labels(ECalendarDayVisual visual) {
-    return Stack(
-      children: [
-        Positioned(
-          left: 3,
-          top: 2,
-          child: Text(
-            presentation.dayNumberLabel,
-            style: TextStyle(
-              fontSize: visual is ECalendarDayEmpty ? 11 : 8,
-              fontWeight: FontWeight.w500,
-              color: visual.ink.withValues(
-                alpha: visual is ECalendarDayEmpty ? 1 : 0.7,
-              ),
-            ),
-          ),
-        ),
-        if (presentation.secondaryLabel != null)
-          Positioned(
-            right: 2,
-            top: 12,
-            child: Text(
-              presentation.secondaryLabel!,
-              textAlign: TextAlign.right,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w300,
-                color: visual.ink,
-              ),
-            ),
-          ),
-        if (presentation.markers.isNotEmpty)
-          Positioned(
-            left: 2,
-            bottom: 2,
-            child: Row(
-              children: [
-                for (final marker in presentation.markers)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 2),
-                    child: Text(
-                      marker.label[0],
-                      style: TextStyle(
-                        fontSize: 7,
-                        fontWeight: FontWeight.w700,
-                        color: visual.ink.withValues(alpha: 0.8),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class const _PeriodSummaryChrome({
-  required final ECalendarPeriodPresentation presentation,
-}) extends StatelessWidget {
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        SizedBox(
-          width: 28,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                '${presentation.activeDays}',
-                textAlign: TextAlign.center,
-                style: EText.caption.copyWith(
-                  color: EColors.textSecondary,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 10,
-                ),
-              ),
-              Text(
-                presentation.activeDays == 1 ? 'day' : 'days',
-                textAlign: TextAlign.center,
-                style: EText.caption.copyWith(
-                  color: EColors.textMuted,
-                  fontSize: 8,
-                ),
-              ),
-            ],
-          ),
-        ),
-        if (presentation.measureCaption != null) ...[
-          const SizedBox(width: 4),
-          Expanded(
-            child: Text(
-              presentation.measureCaption!,
-              style: EText.caption.copyWith(fontSize: 10),
-            ),
-          ),
-        ],
-      ],
+    final selectedCount = _multiSelect.selectedDates.length;
+    return EMonthStackMultiSelectBar(
+      selectedCount: selectedCount,
+      actionLabel: widget.multiSelectActionLabel ?? 'Confirm',
+      onCancel: () => setState(_multiSelect.exit),
+      onConfirm: selectedCount > 0
+          ? () {
+              widget.onMultiSelectConfirmed!(
+                _multiSelect.confirmedDays(widget.presentationFor),
+              );
+              setState(_multiSelect.exit);
+            }
+          : null,
     );
   }
 }

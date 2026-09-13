@@ -1,10 +1,10 @@
-import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/material.dart';
 
 import '../chrome/e_surface.dart';
 import '../theme/e_colors.dart';
 import '../theme/e_layout.dart';
 import '../theme/e_text.dart';
+import 'log_text_view.dart';
 
 /// Line-level color for matching [LogConsole] log lines.
 class const LogConsoleHighlight({

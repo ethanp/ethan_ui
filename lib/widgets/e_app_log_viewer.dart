@@ -1,8 +1,8 @@
-import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/material.dart';
 
 import '../theme/e_colors.dart';
 import '../theme/e_layout.dart';
+import 'app_log_viewer.dart';
 
 const _eAppLogViewerStyle = AppLogViewerStyle(
   surface: EColors.backgroundLift,
