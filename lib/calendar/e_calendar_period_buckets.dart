@@ -8,9 +8,13 @@ class const ECalendarDailyMeasure({
 
 class const ECalendarPeriodBucket({
   required final DateTime periodStart,
+  required final DateTime periodEnd,
   required final int activeDays,
   required final num measureSum,
-});
+}) {
+  bool overlaps({required DateTime rangeStart, required DateTime rangeEnd}) =>
+      !periodStart.isAfter(rangeEnd) && periodEnd.isAfter(rangeStart);
+}
 
 abstract final class ECalendarPeriodBuckets() {
   static List<ECalendarDailyMeasure> filledDailyRange(
@@ -46,6 +50,7 @@ abstract final class ECalendarPeriodBuckets() {
     return _buckets(
       filledDailyRange(observed),
       periodStartOf: _mondayOf,
+      periodEndOf: (start) => start.shiftedByDays(7),
     );
   }
 
@@ -55,6 +60,7 @@ abstract final class ECalendarPeriodBuckets() {
     return _buckets(
       filledDailyRange(observed),
       periodStartOf: (date) => DateTime(date.year, date.month, 1),
+      periodEndOf: (start) => DateTime(start.year, start.month + 1),
     );
   }
 
@@ -64,6 +70,7 @@ abstract final class ECalendarPeriodBuckets() {
   static List<ECalendarPeriodBucket> _buckets(
     List<ECalendarDailyMeasure> days, {
     required DateTime Function(DateTime date) periodStartOf,
+    required DateTime Function(DateTime start) periodEndOf,
   }) {
     if (days.isEmpty) return const [];
 
@@ -74,11 +81,13 @@ abstract final class ECalendarPeriodBuckets() {
           buckets[periodStart] ??
           ECalendarPeriodBucket(
             periodStart: periodStart,
+            periodEnd: periodEndOf(periodStart),
             activeDays: 0,
             measureSum: 0,
           );
       buckets[periodStart] = ECalendarPeriodBucket(
         periodStart: periodStart,
+        periodEnd: existing.periodEnd,
         activeDays: existing.activeDays + (day.isActive ? 1 : 0),
         measureSum: existing.measureSum + day.quantity,
       );

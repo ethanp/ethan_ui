@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:url_launcher/url_launcher.dart';
+
+import 'error_report_mail.dart';
 
 class const ErrorReportDialog({
   required final String title,
   required final String userMessage,
   required final String emailSubject,
   required final String reportBody,
-  final String emailAddress = 'etahnp@gmail.com',
+  final String emailAddress = ErrorReportMail.address,
 }) extends StatelessWidget {
   static Future<void> show({
     required BuildContext context,
@@ -15,7 +16,7 @@ class const ErrorReportDialog({
     required String userMessage,
     required String emailSubject,
     required String reportBody,
-    String emailAddress = 'etahnp@gmail.com',
+    String emailAddress = ErrorReportMail.address,
   }) {
     return showDialog<void>(
       context: context,
@@ -36,7 +37,11 @@ class const ErrorReportDialog({
       content: _userMessageAndReportBody(),
       actions: [
         TextButton(
-          onPressed: () => _openGmailComposeForReport(),
+          onPressed: () => ErrorReportMail.openCompose(
+            subject: emailSubject,
+            body: reportBody,
+            emailAddress: emailAddress,
+          ),
           child: const Text('Email to me'),
         ),
         TextButton(
@@ -72,23 +77,5 @@ class const ErrorReportDialog({
         ],
       ),
     );
-  }
-
-  Future<void> _openGmailComposeForReport() async {
-    final encodedSubject = Uri.encodeComponent(emailSubject);
-    final encodedBody = Uri.encodeComponent(reportBody);
-    final gmailUri = Uri.parse(
-      'googlegmail:///co?to=$emailAddress&subject=$encodedSubject&body=$encodedBody',
-    );
-    if (await canLaunchUrl(gmailUri)) {
-      await launchUrl(gmailUri, mode: LaunchMode.externalApplication);
-      return;
-    }
-
-    final webUri = Uri.parse(
-      'https://mail.google.com/mail/?view=cm'
-      '&to=$emailAddress&su=$encodedSubject&body=$encodedBody',
-    );
-    await launchUrl(webUri, mode: LaunchMode.externalApplication);
   }
 }

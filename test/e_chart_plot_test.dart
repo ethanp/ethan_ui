@@ -40,6 +40,33 @@ void main() {
       expect(plot.contains(Offset(plot.left, plot.top)), isTrue);
       expect(plot.contains(Offset(plot.left - 1, plot.top)), isFalse);
     });
+
+    test('a bar at a fixed date slides left when the window moves later', () {
+      final barStart = DateTime(2026, 6, 1);
+      final barUntil = DateTime(2026, 6, 8);
+      Rect barOn({required DateTime start, required DateTime end}) {
+        return EChartPlot(
+          size: const Size(400, 200),
+          start: start,
+          end: end,
+          valueScale: EChartValueScale.fixed(
+            min: 0,
+            max: 100,
+            ticks: const [0, 100],
+          ),
+        ).barSpan(start: barStart, until: barUntil, value: 40);
+      }
+
+      final earlier = barOn(
+        start: DateTime(2026, 1, 1),
+        end: DateTime(2026, 12, 31),
+      );
+      final later = barOn(
+        start: DateTime(2026, 4, 1),
+        end: DateTime(2027, 3, 31),
+      );
+      expect(later.left, lessThan(earlier.left));
+    });
   });
 
   group('EChartValueScale', () {
@@ -136,6 +163,38 @@ void main() {
 
       expect(hit?.pointId, 'logged');
       expect(hit?.seriesId, 'logged');
+    });
+
+    test('a tap in a bar column selects that bar', () {
+      final plot = EChartPlot(
+        size: const Size(400, 220),
+        start: DateTime(2026, 1, 1),
+        end: DateTime(2026, 1, 29),
+        valueScale: EChartValueScale.fixed(
+          min: 0,
+          max: 100,
+          ticks: const [0, 100],
+        ),
+      );
+      final week = EChartPoint(
+        date: DateTime(2026, 1, 12),
+        until: DateTime(2026, 1, 19),
+        value: 20,
+        id: 'week',
+      );
+      final bar = plot.barSpan(
+        start: week.date,
+        until: week.until!,
+        value: week.value,
+      );
+      final hit = EChartHitTest(
+        plot: plot,
+        series: [
+          EChartSeries.bars(id: 'days', points: [week]),
+        ],
+      ).nearestPoint(Offset(bar.center.dx, plot.bottom - 8));
+      expect(hit?.pointId, 'week');
+      expect(hit?.seriesId, 'days');
     });
 
     test(

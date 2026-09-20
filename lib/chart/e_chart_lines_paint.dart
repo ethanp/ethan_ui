@@ -31,6 +31,7 @@ class const EChartLinesPaint<T extends Object>({
   }
 
   void _paintSeries(Canvas canvas, EChartSeries<T> seriesItem) {
+    if (seriesItem.paintsBars) return;
     if (seriesItem.points.isEmpty) return;
     final offsets = [
       for (final point in seriesItem.points)

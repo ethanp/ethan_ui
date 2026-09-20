@@ -1,3 +1,6 @@
+import 'dart:math' as math;
+
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/material.dart';
 
 import '../theme/e_chart_axis.dart';
@@ -12,10 +15,31 @@ class const EChartYLabels({
   final double width = 36,
   final String Function(double value)? formatTick,
 }) extends StatelessWidget {
+  static const _captionTrailingPad = 4.0;
+
+  static double gutterWidthFor({
+    required EChartValueScale scale,
+    String Function(double value)? formatTick,
+    double minWidth = 36,
+  }) {
+    final captions = [
+      for (final tick in scale.ticks)
+        formatTick?.call(tick) ?? scale.caption(tick),
+    ];
+    return math.max(
+      minWidth,
+      captions.widestLaidOutWidth(EChartAxis.tickLabel) + _captionTrailingPad,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: width,
+      width: gutterWidthFor(
+        scale: scale,
+        formatTick: formatTick,
+        minWidth: width,
+      ),
       height: height,
       child: CustomPaint(
         painter: _EChartYLabelsPainter(
@@ -47,7 +71,8 @@ class const _EChartYLabelsPainter({
         ),
         textAlign: TextAlign.right,
         textDirection: TextDirection.ltr,
-      )..layout(maxWidth: size.width);
+        maxLines: 1,
+      )..layout();
       final tickY =
           topPadding +
           (1 - scale.fractionFromBottom(tick)) * plotHeight -

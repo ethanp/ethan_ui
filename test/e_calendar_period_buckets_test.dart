@@ -23,11 +23,27 @@ void main() {
 
     expect(buckets, hasLength(2));
     expect(buckets.first.periodStart, DateTime(2026, 8, 31));
+    expect(buckets.first.periodEnd, DateTime(2026, 9, 7));
     expect(buckets.first.activeDays, 0);
     expect(buckets.first.measureSum, 0);
     expect(buckets.last.periodStart, DateTime(2026, 9, 7));
+    expect(buckets.last.periodEnd, DateTime(2026, 9, 14));
     expect(buckets.last.activeDays, 2);
     expect(buckets.last.measureSum, 30);
+    expect(
+      buckets.last.overlaps(
+        rangeStart: DateTime(2026, 9, 10),
+        rangeEnd: DateTime(2026, 9, 20),
+      ),
+      isTrue,
+    );
+    expect(
+      buckets.last.overlaps(
+        rangeStart: DateTime(2026, 8, 1),
+        rangeEnd: DateTime(2026, 9, 6),
+      ),
+      isFalse,
+    );
   });
 
   test('months use the calendar month and do not count zero days as active', () {
@@ -51,8 +67,10 @@ void main() {
 
     expect(buckets, hasLength(2));
     expect(buckets.first.periodStart, DateTime(2026, 8, 1));
+    expect(buckets.first.periodEnd, DateTime(2026, 9, 1));
     expect(buckets.first.activeDays, 1);
     expect(buckets.last.periodStart, DateTime(2026, 9, 1));
+    expect(buckets.last.periodEnd, DateTime(2026, 10, 1));
     expect(buckets.last.activeDays, 1);
     expect(buckets.last.measureSum, 12);
   });

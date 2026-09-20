@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/painting.dart';
 
 import '../theme/e_chart_date_scale.dart';
@@ -55,6 +57,22 @@ class EChartPlot({
     if (height == 0) return valueScale.min;
     final fraction = ((bottom - y) / height).clamp(0.0, 1.0);
     return valueScale.min + fraction * (valueScale.max - valueScale.min);
+  }
+
+  /// Filled bar from [start] to exclusive [until], sitting on the baseline.
+  Rect barSpan({
+    required DateTime start,
+    required DateTime until,
+    required double value,
+  }) {
+    final spanLeft = xForDate(start);
+    final spanRight = xForDate(until);
+    final spanWidth = spanRight - spanLeft;
+    final gap = math.min(2.0, math.max(0.0, spanWidth) * 0.12);
+    final barLeft = spanLeft + gap / 2;
+    final barRight = math.max(barLeft + 1, spanRight - gap / 2);
+    final barHeight = math.max(2.0, bottom - yForValue(value));
+    return Rect.fromLTRB(barLeft, bottom - barHeight, barRight, bottom);
   }
 
   bool contains(Offset local) {

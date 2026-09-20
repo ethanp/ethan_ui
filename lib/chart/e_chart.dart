@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'e_chart_annotation.dart';
+import 'e_chart_bars_paint.dart';
 import 'e_chart_chrome.dart';
 import 'e_chart_hit_test.dart';
 import 'e_chart_lines_paint.dart';
@@ -11,6 +12,7 @@ import 'e_chart_value_scale.dart';
 
 /// A dated value chart: series, optional annotations, tap and hover.
 class const EChart<T extends Object>({
+  super.key,
   required final List<EChartSeries<T>> series,
   required final EChartValueScale valueScale,
   required final DateTime start,
@@ -103,6 +105,11 @@ class _EChartPainter<T extends Object>({
   @override
   void paint(Canvas canvas, Size size) {
     EChartChrome(plot, paintsValueTicks: paintsValueTicks).paint(canvas);
+    EChartBarsPaint(
+      plot: plot,
+      series: series,
+      selectedPoint: selectedPoint ?? hoveredPoint,
+    ).paint(canvas);
     EChartLinesPaint(
       plot: plot,
       series: series,

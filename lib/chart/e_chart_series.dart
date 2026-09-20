@@ -15,12 +15,15 @@ enum EChartPointHits() {
 }
 
 /// One dated value on a series, stamped with host identity [id].
+///
+/// [until] is the exclusive end of a bar. Line and dot series leave it null.
 class const EChartPoint<T extends Object>({
   required final DateTime date,
   required final double value,
   required final T id,
   final Color? color,
   final double? dotRadius,
+  final DateTime? until,
 });
 
 /// How a series is drawn. Construct via [EChartSeries] factories, not by
@@ -42,6 +45,8 @@ class const EChartStrokeAndDotsMark({
   final double width = 1.2,
   final Color? fillColor,
 }) extends EChartSeriesMark;
+
+class const EChartBarsMark() extends EChartSeriesMark;
 
 /// A dated series: data, a visual kind, and a hit policy.
 class const EChartSeries<T extends Object>._({
@@ -122,28 +127,45 @@ class const EChartSeries<T extends Object>._({
     );
   }
 
+  factory bars({
+    required String id,
+    required List<EChartPoint<T>> points,
+    Color color = EColors.accent,
+    EChartPointHits hits = EChartPointHits.include,
+    String? label,
+  }) {
+    return EChartSeries._(
+      id: id,
+      points: points,
+      color: color,
+      mark: const EChartBarsMark(),
+      hits: hits,
+      label: label,
+    );
+  }
+
   EChartInterpolation get interpolation => switch (mark) {
     EChartStrokeMark(:final interpolation) => interpolation,
     EChartStrokeAndDotsMark(:final interpolation) => interpolation,
-    EChartDotsMark() => EChartInterpolation.polyline,
+    EChartDotsMark() || EChartBarsMark() => EChartInterpolation.polyline,
   };
 
   EChartStrokeDash get dash => switch (mark) {
     EChartStrokeMark(:final dash) => dash,
     EChartStrokeAndDotsMark(:final dash) => dash,
-    EChartDotsMark() => EChartStrokeDash.solid,
+    EChartDotsMark() || EChartBarsMark() => EChartStrokeDash.solid,
   };
 
   double get strokeWidth => switch (mark) {
     EChartStrokeMark(:final width) => width,
     EChartStrokeAndDotsMark(:final width) => width,
-    EChartDotsMark() => 1.2,
+    EChartDotsMark() || EChartBarsMark() => 1.2,
   };
 
   Color? get fillColor => switch (mark) {
     EChartStrokeMark(:final fillColor) => fillColor,
     EChartStrokeAndDotsMark(:final fillColor) => fillColor,
-    EChartDotsMark() => null,
+    EChartDotsMark() || EChartBarsMark() => null,
   };
 
   bool get paintsStroke =>
@@ -151,4 +173,6 @@ class const EChartSeries<T extends Object>._({
 
   bool get paintsDots =>
       mark is EChartDotsMark || mark is EChartStrokeAndDotsMark;
+
+  bool get paintsBars => mark is EChartBarsMark;
 }
