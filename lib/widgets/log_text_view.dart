@@ -248,6 +248,12 @@ class _LogTextViewState() extends State<LogTextView> {
     return SelectableRegion(
       focusNode: _selectionFocusNode,
       selectionControls: cupertinoTextSelectionHandleControls,
+      contextMenuBuilder: (context, selectableRegionState) {
+        return CupertinoAdaptiveTextSelectionToolbar.buttonItems(
+          anchors: selectableRegionState.contextMenuAnchors,
+          buttonItems: selectableRegionState.contextMenuButtonItems,
+        );
+      },
       child: ListView.builder(
         controller: _scrollController,
         reverse:

@@ -1,6 +1,6 @@
 import 'package:ethan_utils/ethan_utils.dart';
 
-/// How tall a value is on a chart: nice ticks or a fixed range.
+/// How tall a value is on a chart: nice ticks, clock-minute ticks, or a fixed range.
 class const EChartValueScale({
   required final double min,
   required final double max,
@@ -23,6 +23,29 @@ class const EChartValueScale({
       max: scale.max,
       ticks: scale.ticks,
       tickSuffix: tickSuffix,
+    );
+  }
+
+  static const clockMinuteSteps = <int>[1, 2, 5, 10, 15, 20, 30, 60, 90, 120];
+
+  factory clockMinutes(double peak, {int targetTickCount = 4}) {
+    final positiveMax = peak > 0 ? peak : 1.0;
+    final rawStep = positiveMax / targetTickCount;
+    var step = clockMinuteSteps.last;
+    for (final candidate in clockMinuteSteps) {
+      if (candidate >= rawStep) {
+        step = candidate;
+        break;
+      }
+    }
+    final niceMax = (positiveMax / step).ceil() * step;
+    return EChartValueScale(
+      min: 0,
+      max: niceMax.toDouble(),
+      ticks: [
+        for (var minute = 0; minute <= niceMax; minute += step)
+          minute.toDouble(),
+      ],
     );
   }
 

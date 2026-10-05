@@ -13,6 +13,7 @@ export 'chart/e_chart_value_scale.dart';
 export 'chart/e_chart_visible_range.dart';
 export 'chart/e_chart_all_time_sparkline.dart';
 export 'chart/e_chart_all_time_range_scrubber.dart';
+export 'chart/e_chart_visible_range_scrubber.dart';
 export 'chart/e_chart_y_labels.dart';
 export 'chart/e_donut.dart';
 export 'theme/e_chart_axis.dart';
