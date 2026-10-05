@@ -2,6 +2,8 @@ import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
+import '../theme/e_chart_axis.dart';
+import '../theme/e_chart_date_scale.dart';
 import '../theme/e_colors.dart';
 import 'e_chart_visible_range.dart';
 
@@ -25,27 +27,44 @@ class const EChartVisibleRangeScrubber({
 }) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final axisStart = fullStart.startOfDay;
+    final axisEnd = fullEnd.startOfDay;
     return Semantics(
       label:
           semanticLabel ??
-          'Visible ${_dateLabel(visible.start)} through ${_dateLabel(visible.end)}.',
-      child: SizedBox(
-        height: height,
-        width: double.infinity,
-        child: _RangeScrubberSurface(
-          fullStart: fullStart.startOfDay,
-          fullEnd: fullEnd.startOfDay,
-          visible: visible,
-          onVisibleRangeChanged: onVisibleRangeChanged,
-          plot: plot,
-          windowColor: windowColor,
-        ),
+          'Available ${EChartDateScale.daySpan(start: axisStart, end: axisEnd, rangeStart: axisStart, rangeEnd: axisEnd)}. '
+          'Current ${EChartDateScale.daySpan(start: visible.start, end: visible.end, rangeStart: axisStart, rangeEnd: axisEnd)}.',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(
+            key: const ValueKey('range-scrubber-track'),
+            height: height,
+            width: double.infinity,
+            child: _RangeScrubberSurface(
+              fullStart: axisStart,
+              fullEnd: axisEnd,
+              visible: visible,
+              onVisibleRangeChanged: onVisibleRangeChanged,
+              plot: plot,
+              windowColor: windowColor,
+            ),
+          ),
+          SizedBox(
+            height: _FullRangeEndCaptions.bandHeight,
+            width: double.infinity,
+            child: CustomPaint(
+              painter: _FullRangeEndCaptions(
+                fullStart: axisStart,
+                fullEnd: axisEnd,
+              ),
+              child: const SizedBox.expand(),
+            ),
+          ),
+        ],
       ),
     );
   }
-
-  static String _dateLabel(DateTime date) =>
-      '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 }
 
 class const _RangeScrubberSurface({
@@ -91,11 +110,11 @@ class _RangeScrubberSurfaceState() extends State<_RangeScrubberSurface> {
             ),
       },
       child: CustomPaint(
-        painter: _VisibleRangeWindowPainter(
+        painter: _ScrubberTrackBackdrop(plot: widget.plot),
+        foregroundPainter: _VisibleRangeWindowPainter(
           fullStart: widget.fullStart,
           fullEnd: widget.fullEnd,
           visible: widget.visible,
-          plot: widget.plot,
           windowColor: widget.windowColor,
         ),
         child: const SizedBox.expand(),
@@ -189,12 +208,8 @@ class _ScrubberHorizontalDragRecognizer() extends HorizontalDragGestureRecognize
   }
 }
 
-class _VisibleRangeWindowPainter({
-  required final DateTime fullStart,
-  required final DateTime fullEnd,
-  required final EChartVisibleRange visible,
+class _ScrubberTrackBackdrop({
   required final CustomPainter plot,
-  required final Color windowColor,
 }) extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
@@ -206,6 +221,30 @@ class _VisibleRangeWindowPainter({
     canvas.clipRRect(plotRect);
     canvas.drawRRect(plotRect, Paint()..color = EColors.surfaceInset);
     plot.paint(canvas, size);
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(covariant _ScrubberTrackBackdrop oldDelegate) {
+    if (plot.runtimeType != oldDelegate.plot.runtimeType) return true;
+    return plot.shouldRepaint(oldDelegate.plot);
+  }
+}
+
+class _VisibleRangeWindowPainter({
+  required final DateTime fullStart,
+  required final DateTime fullEnd,
+  required final EChartVisibleRange visible,
+  required final Color windowColor,
+}) extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final plotRect = RRect.fromRectAndRadius(
+      Offset.zero & size,
+      const Radius.circular(4),
+    );
+    canvas.save();
+    canvas.clipRRect(plotRect);
     _paintVisibleWindow(canvas, size);
     canvas.restore();
   }
@@ -261,6 +300,31 @@ class _VisibleRangeWindowPainter({
       ),
       handle,
     );
+    _paintCurrentRange(canvas, size, left, right);
+  }
+
+  void _paintCurrentRange(Canvas canvas, Size size, double left, double right) {
+    final caption = EChartDateScale.daySpan(
+      start: visible.start,
+      end: visible.end,
+      rangeStart: fullStart,
+      rangeEnd: fullEnd,
+    );
+    final textPainter = TextPainter(
+      text: TextSpan(text: caption, style: EChartAxis.tickLabel),
+      textDirection: TextDirection.ltr,
+      maxLines: 1,
+    )..layout();
+    final innerLeft = left + 8;
+    final innerRight = right - 8;
+    if (innerRight - innerLeft < textPainter.width) return;
+    textPainter.paint(
+      canvas,
+      Offset(
+        innerLeft + (innerRight - innerLeft - textPainter.width) / 2,
+        (size.height - textPainter.height) / 2,
+      ),
+    );
   }
 
   double _xForDate(DateTime date, double width) {
@@ -271,13 +335,52 @@ class _VisibleRangeWindowPainter({
 
   @override
   bool shouldRepaint(covariant _VisibleRangeWindowPainter oldDelegate) {
-    if (oldDelegate.visible != visible ||
+    return oldDelegate.visible != visible ||
         oldDelegate.windowColor != windowColor ||
         oldDelegate.fullStart != fullStart ||
-        oldDelegate.fullEnd != fullEnd ||
-        plot.runtimeType != oldDelegate.plot.runtimeType) {
-      return true;
-    }
-    return plot.shouldRepaint(oldDelegate.plot);
+        oldDelegate.fullEnd != fullEnd;
+  }
+}
+
+class _FullRangeEndCaptions({
+  required final DateTime fullStart,
+  required final DateTime fullEnd,
+}) extends CustomPainter {
+  static const bandHeight = 16.0;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    _paintEnd(canvas, size, fullStart, alignToEnd: false);
+    _paintEnd(canvas, size, fullEnd, alignToEnd: true);
+  }
+
+  void _paintEnd(
+    Canvas canvas,
+    Size size,
+    DateTime date, {
+    required bool alignToEnd,
+  }) {
+    final textPainter = TextPainter(
+      text: TextSpan(
+        text: EChartDateScale.dayCaption(
+          date,
+          rangeStart: fullStart,
+          rangeEnd: fullEnd,
+        ),
+        style: EChartAxis.tickLabel,
+      ),
+      textDirection: TextDirection.ltr,
+      maxLines: 1,
+    )..layout();
+    final x = alignToEnd ? size.width - textPainter.width : 0.0;
+    textPainter.paint(
+      canvas,
+      Offset(x, (size.height - textPainter.height) / 2),
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _FullRangeEndCaptions oldDelegate) {
+    return oldDelegate.fullStart != fullStart || oldDelegate.fullEnd != fullEnd;
   }
 }

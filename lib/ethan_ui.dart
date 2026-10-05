@@ -21,6 +21,7 @@ export 'theme/e_chart_date_scale.dart';
 export 'theme/e_colors.dart';
 export 'theme/e_heatmap_intensity.dart';
 export 'calendar/e_calendar_charts.dart';
+export 'calendar/e_calendar_instant_quantity.dart';
 export 'calendar/e_calendar_day_presentation.dart';
 export 'calendar/e_calendar_period_buckets.dart';
 export 'chart/e_trailing_seven_day_smoothed_totals.dart';

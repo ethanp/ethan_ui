@@ -24,7 +24,7 @@ void main() {
     expect(visible.end, DateTime(2026, 9, 12));
   });
 
-  test('start handle cannot collapse below 14 days', () {
+  test('start handle cannot collapse below 7 days', () {
     final visible = EChartVisibleRange(
       start: DateTime(2026, 1, 1),
       end: DateTime(2026, 1, 31),
@@ -35,11 +35,11 @@ void main() {
       latest: latest,
     );
     expect(resized.end, DateTime(2026, 1, 31));
-    expect(resized.start, DateTime(2026, 1, 18));
-    expect(resized.inclusiveDayCount, 14);
+    expect(resized.start, DateTime(2026, 1, 25));
+    expect(resized.inclusiveDayCount, 7);
   });
 
-  test('end handle cannot collapse below 14 days', () {
+  test('end handle cannot collapse below 7 days', () {
     final visible = EChartVisibleRange(
       start: DateTime(2026, 1, 1),
       end: DateTime(2026, 1, 31),
@@ -50,7 +50,7 @@ void main() {
       latest: latest,
     );
     expect(resized.start, DateTime(2026, 1, 1));
-    expect(resized.end, DateTime(2026, 1, 14));
+    expect(resized.end, DateTime(2026, 1, 7));
   });
 
   test('pane scrub keeps duration and stays inside all-time', () {

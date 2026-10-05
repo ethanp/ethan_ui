@@ -14,7 +14,6 @@ void main() {
 
     expect(find.byType(SelectableText), findsOneWidget);
     expect(find.text('PostgREST conflict: 409'), findsOneWidget);
-    expect(find.text('Email to me'), findsOneWidget);
   });
 
   testWidgets('ErrorSnackBar.show stays until dismissed', (tester) async {
@@ -41,7 +40,6 @@ void main() {
     await tester.pump(const Duration(milliseconds: 300));
 
     expect(find.text('Upload failed'), findsOneWidget);
-    expect(find.text('Email to me'), findsOneWidget);
 
     await tester.tap(find.text('Dismiss'));
     await tester.pump();

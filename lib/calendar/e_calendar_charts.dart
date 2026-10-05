@@ -1,31 +1,26 @@
-import 'dart:math' as math;
-
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/material.dart';
 
 import '../chart/e_chart.dart';
 import '../chart/e_chart_all_time_range_scrubber.dart';
 import '../chart/e_chart_interpolation.dart';
-import '../chart/e_chart_selected_point.dart';
 import '../chart/e_chart_series.dart';
 import '../chart/e_chart_value_scale.dart';
 import '../chart/e_chart_visible_range.dart';
 import '../chart/e_chart_y_labels.dart';
 import '../chart/e_trailing_seven_day_smoothed_totals.dart';
-import '../theme/e_colors.dart';
 import '../theme/e_layout.dart';
 import '../theme/e_text.dart';
+import 'e_calendar_instant_quantity.dart';
 import 'e_calendar_period_buckets.dart';
-
-enum ECalendarChartBarPeriod() {
-  week,
-  month,
-}
+import 'e_day_so_far_versus_window_chart.dart';
 
 class const ECalendarCharts({
   required final List<ECalendarDailyMeasure> dailyMeasures,
   required final String measureTitle,
   required final String Function(num quantity) formatMeasure,
+  final List<ECalendarInstantQuantity> instantQuantities = const [],
+  final DateTime? now,
 }) extends StatefulWidget {
   static const measureBarColor = Color(0xFFD4B84C);
 
@@ -34,12 +29,10 @@ class const ECalendarCharts({
 }
 
 class _ECalendarChartsState() extends State<ECalendarCharts> {
-  ECalendarChartBarPeriod _barPeriod = ECalendarChartBarPeriod.week;
   late final ValueNotifier<EChartVisibleRange> _visibleRange;
   List<ECalendarDailyMeasure> _filledDays = const [];
   List<ETrailingSevenDaySmoothedPoint> _smoothed = const [];
-  List<ECalendarPeriodBucket> _weekBuckets = const [];
-  List<ECalendarPeriodBucket> _monthBuckets = const [];
+  List<EChartAllTimeRangeSample> _minimapSamples = const [];
 
   @override
   void initState() {
@@ -67,8 +60,10 @@ class _ECalendarChartsState() extends State<ECalendarCharts> {
       for (final day in _filledDays)
         EDailyQuantity(date: day.date, quantity: day.quantity),
     ], through: through);
-    _weekBuckets = ECalendarPeriodBuckets.weeks(widget.dailyMeasures);
-    _monthBuckets = ECalendarPeriodBuckets.months(widget.dailyMeasures);
+    _minimapSamples = [
+      for (final day in _smoothed)
+        EChartAllTimeRangeSample(date: day.date, value: day.smoothedTotal),
+    ];
     if (_filledDays.isEmpty) return;
     final next = resetWindow
         ? EChartVisibleRange.lastYearThrough(
@@ -114,105 +109,49 @@ class _ECalendarChartsState() extends State<ECalendarCharts> {
     return '${measure[0].toUpperCase()}${measure.substring(1)} rolling load';
   }
 
-  List<ECalendarPeriodBucket> get _allBuckets =>
-      _barPeriod == ECalendarChartBarPeriod.week ? _weekBuckets : _monthBuckets;
-
-  String get _periodNoun =>
-      _barPeriod == ECalendarChartBarPeriod.week ? 'week' : 'month';
-
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SegmentedButton<ECalendarChartBarPeriod>(
-          segments: const [
-            ButtonSegment(
-              value: ECalendarChartBarPeriod.week,
-              label: Text('Week'),
-            ),
-            ButtonSegment(
-              value: ECalendarChartBarPeriod.month,
-              label: Text('Month'),
-            ),
-          ],
-          selected: {_barPeriod},
-          onSelectionChanged: (selected) {
-            setState(() => _barPeriod = selected.single);
-          },
-        ),
-        const SizedBox(height: ELayout.spaceLg),
-        ValueListenableBuilder<EChartVisibleRange>(
-          valueListenable: _visibleRange,
-          builder: (context, visible, _) => _charts(visible),
-        ),
-      ],
+    return ValueListenableBuilder<EChartVisibleRange>(
+      valueListenable: _visibleRange,
+      builder: (context, visible, _) => _charts(visible),
     );
   }
 
   Widget _charts(EChartVisibleRange visible) {
-    final daysScale = EChartValueScale.nice(_visibleActiveDaysMax(visible));
     final trendPoints = _trendPointsIn(visible);
     final trendScale = EChartValueScale.nice(
       _trendVisibleMax(trendPoints, visible),
     );
-    final yGutterWidth = _sharedYGutterWidth(
-      daysScale: daysScale,
-      trendScale: trendScale,
+    final yGutterWidth = EChartYLabels.gutterWidthFor(
+      scale: trendScale,
+      formatTick: (value) => widget.formatMeasure(value),
     );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _activeDaysChart(visible, daysScale, yGutterWidth),
-        const SizedBox(height: ELayout.spaceXl),
         Text(_rollingLoadTitle, style: EText.section),
         const SizedBox(height: ELayout.spaceSm),
         _rollingLoadChart(visible, trendScale, trendPoints, yGutterWidth),
         const SizedBox(height: ELayout.spaceLg),
-        EChartAllTimeRangeScrubber(
-          samples: [
-            for (final day in _smoothed)
-              EChartAllTimeRangeSample(
-                date: day.date,
-                value: day.smoothedTotal,
-              ),
-          ],
-          visible: visible,
-          lineColor: ECalendarCharts.measureBarColor,
-          onVisibleRangeChanged: (range) {
-            _visibleRange.value = range;
-          },
+        _rangeScrubber(visible),
+        EDaySoFarVersusWindowChart(
+          instants: widget.instantQuantities,
+          formatMeasure: widget.formatMeasure,
+          now: widget.now,
+          windowStart: visible.start,
+          windowEnd: visible.end,
         ),
       ],
     );
   }
 
-  Widget _activeDaysChart(
-    EChartVisibleRange visible,
-    EChartValueScale valueScale,
-    double yGutterWidth,
-  ) {
-    return _InspectableBarChart(
-      key: ValueKey('active-days-$_barPeriod'),
-      title: 'Active days per $_periodNoun',
-      barColor: EColors.accent,
+  Widget _rangeScrubber(EChartVisibleRange visible) {
+    return EChartAllTimeRangeScrubber(
+      samples: _minimapSamples,
       visible: visible,
-      valueScale: valueScale,
-      yGutterWidth: yGutterWidth,
-      formatY: (value) => value.round().toString(),
-      points: [
-        for (final bucket in _allBuckets)
-          EChartPoint<DateTime>(
-            date: bucket.periodStart,
-            until: bucket.periodEnd,
-            value: bucket.activeDays.toDouble(),
-            id: bucket.periodStart,
-          ),
-      ],
-      inspectCaption: (selected) {
-        final days = selected.value.round();
-        return '${_periodCaption(selected.date)} · $days '
-            '${days == 1 ? 'day' : 'days'}';
+      lineColor: ECalendarCharts.measureBarColor,
+      onVisibleRangeChanged: (range) {
+        _visibleRange.value = range;
       },
     );
   }
@@ -248,33 +187,6 @@ class _ECalendarChartsState() extends State<ECalendarCharts> {
         ],
       ),
     );
-  }
-
-  double _sharedYGutterWidth({
-    required EChartValueScale daysScale,
-    required EChartValueScale trendScale,
-  }) {
-    return math.max(
-      EChartYLabels.gutterWidthFor(
-        scale: daysScale,
-        formatTick: (value) => value.round().toString(),
-      ),
-      EChartYLabels.gutterWidthFor(
-        scale: trendScale,
-        formatTick: (value) => widget.formatMeasure(value),
-      ),
-    );
-  }
-
-  double _visibleActiveDaysMax(EChartVisibleRange visible) {
-    var highest = 0.0;
-    for (final bucket in _allBuckets) {
-      if (!bucket.overlaps(rangeStart: visible.start, rangeEnd: visible.end)) {
-        continue;
-      }
-      if (bucket.activeDays > highest) highest = bucket.activeDays.toDouble();
-    }
-    return highest;
   }
 
   double _trendVisibleMax(
@@ -315,90 +227,6 @@ class _ECalendarChartsState() extends State<ECalendarCharts> {
     ];
   }
 
-  static const _monthNames = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-  ];
-
-  String _periodCaption(DateTime periodStart) {
-    if (_barPeriod == ECalendarChartBarPeriod.month) {
-      return _monthNames[periodStart.month - 1];
-    }
-    return '${periodStart.month}/${periodStart.day}';
-  }
-}
-
-class const _InspectableBarChart({
-  super.key,
-  required final String title,
-  required final Color barColor,
-  required final EChartVisibleRange visible,
-  required final EChartValueScale valueScale,
-  required final double yGutterWidth,
-  required final String Function(double value) formatY,
-  required final List<EChartPoint<DateTime>> points,
-  required final String Function(EChartSelectedPoint<DateTime> selected)
-  inspectCaption,
-}) extends StatefulWidget {
-  @override
-  State<_InspectableBarChart> createState() => _InspectableBarChartState();
-}
-
-class _InspectableBarChartState() extends State<_InspectableBarChart> {
-  EChartSelectedPoint<DateTime>? _inspected;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(widget.title, style: EText.section),
-        if (_inspected != null) ...[
-          const SizedBox(height: ELayout.spaceXs),
-          Text(widget.inspectCaption(_inspected!), style: EText.caption),
-        ],
-        const SizedBox(height: ELayout.spaceSm),
-        SizedBox(height: _DatedPlotRow.height, child: _plot()),
-      ],
-    );
-  }
-
-  Widget _plot() {
-    if (widget.points.isEmpty) {
-      return Center(child: Text('No data yet', style: EText.caption));
-    }
-    return _DatedPlotRow(
-      visible: widget.visible,
-      valueScale: widget.valueScale,
-      yGutterWidth: widget.yGutterWidth,
-      formatY: widget.formatY,
-      selectedPoint: _inspected,
-      onPointSelected: (selected) {
-        setState(() {
-          _inspected = selected?.pointId == _inspected?.pointId
-              ? null
-              : selected;
-        });
-      },
-      series: [
-        EChartSeries.bars(
-          id: 'bars',
-          color: widget.barColor,
-          points: widget.points,
-        ),
-      ],
-    );
-  }
 }
 
 class const _DatedPlotRow({
@@ -408,8 +236,6 @@ class const _DatedPlotRow({
   required final double yGutterWidth,
   required final String Function(double value) formatY,
   required final List<EChartSeries<DateTime>> series,
-  final EChartSelectedPoint<DateTime>? selectedPoint,
-  final void Function(EChartSelectedPoint<DateTime>? selected)? onPointSelected,
 }) extends StatelessWidget {
   static const height = 180.0;
   static const topPadding = 8.0;
@@ -438,8 +264,6 @@ class const _DatedPlotRow({
             topPadding: topPadding,
             bottomPadding: bottomPadding,
             paintsValueTicks: false,
-            selectedPoint: selectedPoint,
-            onPointSelected: onPointSelected,
             series: series,
           ),
         ),

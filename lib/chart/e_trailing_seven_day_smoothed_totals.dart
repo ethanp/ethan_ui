@@ -43,10 +43,7 @@ abstract final class ETrailingSevenDaySmoothedTotals() {
       for (var index = 0; index < filledDates.length; index++)
         _trailingTotalEndingAt(filledDates, quantityOn, index),
     ];
-    var smoothedTotals = trailingTotals;
-    for (var pass = 0; pass < smoothingPasses; pass++) {
-      smoothedTotals = _centeredMovingAverage(smoothedTotals);
-    }
+    final smoothedTotals = smooth(trailingTotals);
 
     return [
       for (var index = 0; index < filledDates.length; index++)
@@ -70,6 +67,16 @@ abstract final class ETrailingSevenDaySmoothedTotals() {
       total += quantityOn[dates[index]] ?? 0;
     }
     return total;
+  }
+
+  /// Two centered 7-sample moving-average passes. Rolling load runs this on
+  /// trailing 7-day totals; the day chart runs it on an hourly mean.
+  static List<double> smooth(List<double> values) {
+    var smoothed = values;
+    for (var pass = 0; pass < smoothingPasses; pass++) {
+      smoothed = _centeredMovingAverage(smoothed);
+    }
+    return smoothed;
   }
 
   static List<double> _centeredMovingAverage(List<double> values) => [

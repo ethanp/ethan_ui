@@ -5,7 +5,7 @@ class const EChartVisibleRange({
   required final DateTime end,
 }) {
   static const defaultVisibleDayCount = 365;
-  static const minVisibleDayCount = 14;
+  static const minVisibleDayCount = 7;
 
   factory lastYearThrough({
     required DateTime earliest,

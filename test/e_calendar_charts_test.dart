@@ -1,16 +1,8 @@
+import 'package:ethan_ui/calendar/e_day_so_far_versus_window_chart.dart';
 import 'package:ethan_ui/ethan_ui.dart';
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-EChart<DateTime> _chartUnder(WidgetTester tester, Key key) {
-  return tester.widget<EChart<DateTime>>(
-    find.descendant(
-      of: find.byKey(key),
-      matching: find.byType(EChart<DateTime>),
-    ),
-  );
-}
 
 void main() {
   final measures = [
@@ -22,9 +14,7 @@ void main() {
       ),
   ];
 
-  testWidgets('Week and Month change how many active-day bars are drawn', (
-    tester,
-  ) async {
+  testWidgets('rolling load sits above the range scrubber', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
         theme: ETheme.material3Dark,
@@ -40,28 +30,14 @@ void main() {
       ),
     );
 
-    expect(find.text('Active days per week'), findsOneWidget);
-    expect(find.text('cardio Z2–5 minutes per week'), findsNothing);
-    expect(find.text('Cardio Z2–5 minutes rolling load'), findsOneWidget);
-    expect(find.byType(EChart<DateTime>), findsNWidgets(2));
-    expect(find.byType(EChartYLabels), findsNWidgets(2));
+    expect(find.byType(EChart<DateTime>), findsOneWidget);
+    expect(find.byType(EChartYLabels), findsOneWidget);
 
-    final weekActiveDayBars = _chartUnder(
-      tester,
-      const ValueKey('active-days-ECalendarChartBarPeriod.week'),
-    ).series.single.points.length;
-
-    await tester.tap(find.text('Month'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Active days per month'), findsOneWidget);
-    expect(find.text('cardio Z2–5 minutes per month'), findsNothing);
-    final monthActiveDayBars = _chartUnder(
-      tester,
-      const ValueKey('active-days-ECalendarChartBarPeriod.month'),
-    ).series.single.points.length;
-    expect(monthActiveDayBars, 1);
-    expect(weekActiveDayBars, greaterThan(monthActiveDayBars));
+    final rollingLoadTop = tester.getTopLeft(find.byType(EChart<DateTime>)).dy;
+    final scrubberTop = tester
+        .getTopLeft(find.byType(EChartAllTimeRangeScrubber))
+        .dy;
+    expect(rollingLoadTop, lessThan(scrubberTop));
   });
 
   testWidgets('trend line stamps each day as the point id', (tester) async {
@@ -131,7 +107,6 @@ void main() {
         ),
       );
 
-      expect(find.text('Dosage rolling load'), findsOneWidget);
       final chart = tester.widget<EChart<DateTime>>(
         find.byKey(const ValueKey('rolling-load')),
       );
@@ -185,6 +160,12 @@ void main() {
       earliest: first,
       latest: through,
     );
+    _expectScrubberSpans(
+      tester,
+      fullStart: first,
+      fullEnd: through,
+      visible: defaultVisible,
+    );
     final chart = tester.widget<EChart<DateTime>>(
       find.byKey(const ValueKey('rolling-load')),
     );
@@ -196,16 +177,12 @@ void main() {
         .where((scrollable) => scrollable.axis == Axis.horizontal);
     expect(horizontalScrolls, isEmpty);
 
-    final weekPointsBefore = _chartUnder(
-      tester,
-      const ValueKey('active-days-ECalendarChartBarPeriod.week'),
-    ).series.single.points.map((point) => point.date).toList();
-
-    await tester.ensureVisible(find.byType(EChartAllTimeRangeScrubber));
+    final track = find.byKey(const ValueKey('range-scrubber-track'));
+    await tester.ensureVisible(track);
     await tester.pumpAndSettle();
-    final scrubberBox = tester.getRect(find.byType(EChartAllTimeRangeScrubber));
+    final trackBox = tester.getRect(track);
     await tester.dragFrom(
-      Offset(scrubberBox.right - 48, scrubberBox.center.dy),
+      Offset(trackBox.right - 48, trackBox.center.dy),
       const Offset(-100, 0),
     );
     await tester.pumpAndSettle();
@@ -215,11 +192,104 @@ void main() {
     );
     expect(afterScrub.start.isBefore(defaultVisible.start), isTrue);
     expect(afterScrub.end.isBefore(through), isTrue);
-
-    final weekPointsAfter = _chartUnder(
+    _expectScrubberSpans(
       tester,
-      const ValueKey('active-days-ECalendarChartBarPeriod.week'),
-    ).series.single.points.map((point) => point.date).toList();
-    expect(weekPointsAfter, weekPointsBefore);
+      fullStart: first,
+      fullEnd: through,
+      visible: EChartVisibleRange(
+        start: afterScrub.start,
+        end: afterScrub.end,
+      ),
+    );
   });
+
+  testWidgets('today sits under the scrubber against the past week', (
+    tester,
+  ) async {
+    final today = DateTime.now().startOfDay;
+    final now = DateTime(today.year, today.month, today.day, 15);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: ETheme.material3Dark,
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: ECalendarCharts(
+              dailyMeasures: [
+                ECalendarDailyMeasure(
+                  date: today.shiftedByDays(-1),
+                  quantity: 14,
+                  isActive: true,
+                ),
+                ECalendarDailyMeasure(
+                  date: today,
+                  quantity: 4,
+                  isActive: true,
+                ),
+              ],
+              instantQuantities: [
+                ECalendarInstantQuantity(
+                  at: today.shiftedByDays(-8).add(const Duration(hours: 12)),
+                  quantity: 100,
+                ),
+                ECalendarInstantQuantity(
+                  at: today.shiftedByDays(-1).add(const Duration(hours: 12)),
+                  quantity: 10,
+                ),
+                ECalendarInstantQuantity(at: today, quantity: 4),
+              ],
+              measureTitle: 'dosage',
+              formatMeasure: (quantity) => '${quantity}mg',
+              now: now,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byType(EDaySoFarVersusWindowChart), findsOneWidget);
+    expect(
+      tester.getSize(find.byKey(const ValueKey('today-versus-window'))).height,
+      EDaySoFarVersusWindowChart.plotHeight,
+    );
+    final scrubberTop = tester
+        .getTopLeft(find.byType(EChartAllTimeRangeScrubber))
+        .dy;
+    final todayTop = tester
+        .getTopLeft(find.byKey(const ValueKey('today-versus-window')))
+        .dy;
+    expect(scrubberTop, lessThan(todayTop));
+  });
+}
+
+void _expectScrubberSpans(
+  WidgetTester tester, {
+  required DateTime fullStart,
+  required DateTime fullEnd,
+  required EChartVisibleRange visible,
+}) {
+  final label = tester
+      .getSemantics(find.byType(EChartVisibleRangeScrubber))
+      .label;
+  expect(
+    label,
+    contains(
+      EChartDateScale.daySpan(
+        start: fullStart,
+        end: fullEnd,
+        rangeStart: fullStart,
+        rangeEnd: fullEnd,
+      ),
+    ),
+  );
+  expect(
+    label,
+    contains(
+      EChartDateScale.daySpan(
+        start: visible.start,
+        end: visible.end,
+        rangeStart: fullStart,
+        rangeEnd: fullEnd,
+      ),
+    ),
+  );
 }

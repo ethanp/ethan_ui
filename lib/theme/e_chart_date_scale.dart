@@ -174,9 +174,28 @@ class EChartDateScale({
     return '$month ${date.year % 100}';
   }
 
-  String _dayCaption(DateTime date) {
+  String _dayCaption(DateTime date) => dayCaption(
+    date,
+    rangeStart: _rangeStart,
+    rangeEnd: _rangeEnd,
+  );
+
+  static String dayCaption(
+    DateTime date, {
+    required DateTime rangeStart,
+    required DateTime rangeEnd,
+  }) {
     final monthDay = '${date.month}/${date.day}';
-    if (_rangeStart.year == _rangeEnd.year) return monthDay;
+    if (rangeStart.year == rangeEnd.year) return monthDay;
     return '$monthDay/${date.year % 100}';
   }
+
+  static String daySpan({
+    required DateTime start,
+    required DateTime end,
+    required DateTime rangeStart,
+    required DateTime rangeEnd,
+  }) =>
+      '${dayCaption(start, rangeStart: rangeStart, rangeEnd: rangeEnd)} – '
+      '${dayCaption(end, rangeStart: rangeStart, rangeEnd: rangeEnd)}';
 }

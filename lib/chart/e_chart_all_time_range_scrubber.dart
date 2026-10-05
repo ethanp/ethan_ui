@@ -1,6 +1,7 @@
 import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/material.dart';
 
+import '../theme/e_chart_date_scale.dart';
 import 'e_chart_visible_range.dart';
 import 'e_chart_visible_range_scrubber.dart';
 
@@ -55,7 +56,8 @@ class const EChartAllTimeRangeScrubber({
       windowColor: windowColor ?? lineColor,
       height: height,
       semanticLabel:
-          'All-time range. Visible ${_dateLabel(visible.start)} through ${_dateLabel(visible.end)}.',
+          'Available ${EChartDateScale.daySpan(start: fullStart, end: fullEnd, rangeStart: fullStart, rangeEnd: fullEnd)}. '
+          'Current ${EChartDateScale.daySpan(start: visible.start, end: visible.end, rangeStart: fullStart, rangeEnd: fullEnd)}.',
       plot: _AllTimeRangePlot(
         fullStart: fullStart,
         fullEnd: fullEnd,
@@ -106,9 +108,6 @@ class const EChartAllTimeRangeScrubber({
     }
     return latest;
   }
-
-  static String _dateLabel(DateTime date) =>
-      '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 }
 
 class _AllTimeRangePlot({
@@ -214,10 +213,24 @@ class _AllTimeRangePlot({
 
   @override
   bool shouldRepaint(covariant _AllTimeRangePlot oldDelegate) {
-    return oldDelegate.fullStart != fullStart ||
+    if (oldDelegate.fullStart != fullStart ||
         oldDelegate.fullEnd != fullEnd ||
         oldDelegate.lines.length != lines.length ||
-        oldDelegate.bars.length != bars.length;
+        oldDelegate.bars.length != bars.length) {
+      return true;
+    }
+    for (var index = 0; index < lines.length; index++) {
+      final line = lines[index];
+      final previous = oldDelegate.lines[index];
+      if (!identical(line.samples, previous.samples) ||
+          line.color != previous.color) {
+        return true;
+      }
+    }
+    for (var index = 0; index < bars.length; index++) {
+      if (!identical(bars[index], oldDelegate.bars[index])) return true;
+    }
+    return false;
   }
 }
 
