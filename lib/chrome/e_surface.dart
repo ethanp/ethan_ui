@@ -34,6 +34,8 @@ class const ESurface({
   final VoidCallback? onActivated,
   final BorderRadius? borderRadius,
 }) extends StatelessWidget {
+  static const borderWidth = 1.0;
+
   @override
   Widget build(BuildContext context) {
     final radius =
@@ -94,7 +96,7 @@ class const ESurface({
       },
       color: kind == ESurfaceKind.inset ? EColors.surfaceInset : null,
       borderRadius: radius,
-      border: Border.all(color: borderColor),
+      border: Border.all(color: borderColor, width: borderWidth),
       // Soft shadows only on panels — row/tinted stay flat for list density.
       boxShadow: kind == ESurfaceKind.panel
           ? [

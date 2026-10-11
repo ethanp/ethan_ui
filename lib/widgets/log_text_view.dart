@@ -70,6 +70,9 @@ class _LogTextViewState() extends State<LogTextView> {
   bool _hugBottom = true;
   bool _programmaticScrollInProgress = false;
   bool _showPrecedingLog = false;
+  List<LogTextLine> _allLines = const [];
+  String? _cachedLog;
+  var _lastHighlightIndexValue = -1;
 
   ScrollController get _scrollController =>
       widget.controller ?? _ownedController!;
@@ -81,6 +84,7 @@ class _LogTextViewState() extends State<LogTextView> {
       _ownedController = ScrollController();
     }
     _scrollController.addListener(_updateHugBottomFromScroll);
+    _replaceCachedLines();
   }
 
   @override
@@ -99,6 +103,14 @@ class _LogTextViewState() extends State<LogTextView> {
     if (!widget.trimBeforeLastHighlight) {
       _showPrecedingLog = false;
     }
+    final logUnchanged =
+        widget.log == oldWidget.log && widget.lines == oldWidget.lines;
+    final highlightsChanged = widget.highlights != oldWidget.highlights;
+    if (logUnchanged) {
+      if (highlightsChanged) _rescanHighlights();
+      return;
+    }
+    _adoptUpdatedLog();
     if (_hugBottom) {
       WidgetsBinding.instance.addPostFrameCallback(
         (_) => _scrollToBottomIfHugging(),
@@ -116,14 +128,12 @@ class _LogTextViewState() extends State<LogTextView> {
 
   @override
   Widget build(BuildContext context) {
-    final allLines = _linesFromProvidedOrSplitLog();
-    final firstVisibleIndex = _firstVisibleIndexHidingEarlierLog(allLines);
+    final firstVisibleIndex = _firstVisibleIndexHidingEarlierLog();
     final visibleLines = firstVisibleIndex == null
-        ? allLines
-        : allLines.sublist(firstVisibleIndex);
-    final lastHighlight = _lastHighlightIndex(allLines);
+        ? _allLines
+        : _allLines.sublist(firstVisibleIndex);
     final canRevealPreceding =
-        widget.trimBeforeLastHighlight && lastHighlight > 0;
+        widget.trimBeforeLastHighlight && _lastHighlightIndexValue > 0;
 
     final body = visibleLines.isEmpty
         ? _emptyState()
@@ -207,27 +217,95 @@ class _LogTextViewState() extends State<LogTextView> {
     );
   }
 
-  List<LogTextLine> _linesFromProvidedOrSplitLog() {
+  void _adoptUpdatedLog() {
     final providedLines = widget.lines;
-    if (providedLines != null) return providedLines;
-    final logText = widget.log;
-    if (logText == null || logText.isEmpty) return const [];
-    return [for (final line in logText.split('\n')) LogTextLine(text: line)];
-  }
-
-  int? _firstVisibleIndexHidingEarlierLog(List<LogTextLine> lines) {
-    if (!widget.trimBeforeLastHighlight || _showPrecedingLog) return null;
-    final lastHighlight = _lastHighlightIndex(lines);
-    if (lastHighlight <= 0) return null;
-    return lastHighlight;
-  }
-
-  int _lastHighlightIndex(List<LogTextLine> lines) {
-    var last = -1;
-    for (var index = 0; index < lines.length; index++) {
-      if (_firstHighlightMatchingLine(lines[index].text) != null) last = index;
+    if (providedLines != null) {
+      _allLines = providedLines;
+      _cachedLog = null;
+      _rescanHighlights();
+      return;
     }
-    return last;
+    final logText = widget.log;
+    if (logText == null || logText.isEmpty) {
+      _allLines = const [];
+      _cachedLog = logText ?? '';
+      _lastHighlightIndexValue = -1;
+      return;
+    }
+    final previousLog = _cachedLog;
+    if (previousLog != null &&
+        previousLog.isNotEmpty &&
+        logText.startsWith(previousLog)) {
+      _appendLogSuffix(logText.substring(previousLog.length));
+      _cachedLog = logText;
+      return;
+    }
+    _replaceCachedLines();
+  }
+
+  void _replaceCachedLines() {
+    final providedLines = widget.lines;
+    if (providedLines != null) {
+      _allLines = providedLines;
+      _cachedLog = null;
+      _rescanHighlights();
+      return;
+    }
+    final logText = widget.log;
+    if (logText == null || logText.isEmpty) {
+      _allLines = const [];
+      _cachedLog = logText ?? '';
+      _lastHighlightIndexValue = -1;
+      return;
+    }
+    _allLines = [for (final line in logText.split('\n')) LogTextLine(text: line)];
+    _cachedLog = logText;
+    _rescanHighlights();
+  }
+
+  void _appendLogSuffix(String suffix) {
+    if (suffix.isEmpty) return;
+    if (_allLines.isEmpty) {
+      _allLines = [
+        for (final line in suffix.split('\n')) LogTextLine(text: line),
+      ];
+      _rescanHighlights();
+      return;
+    }
+    final parts = suffix.split('\n');
+    final lastLine = _allLines.last;
+    final mutableLines = List<LogTextLine>.of(_allLines);
+    mutableLines[mutableLines.length - 1] = LogTextLine(
+      text: lastLine.text + parts.first,
+      color: lastLine.color,
+      fontWeight: lastLine.fontWeight,
+    );
+    final firstNewIndex = mutableLines.length - 1;
+    for (var index = 1; index < parts.length; index++) {
+      mutableLines.add(LogTextLine(text: parts[index]));
+    }
+    _allLines = mutableLines;
+    _scanHighlightsFrom(firstNewIndex);
+  }
+
+  void _rescanHighlights() {
+    _lastHighlightIndexValue = -1;
+    _scanHighlightsFrom(0);
+  }
+
+  void _scanHighlightsFrom(int startIndex) {
+    if (widget.highlights.isEmpty) return;
+    for (var index = startIndex; index < _allLines.length; index++) {
+      if (_firstHighlightMatchingLine(_allLines[index].text) != null) {
+        _lastHighlightIndexValue = index;
+      }
+    }
+  }
+
+  int? _firstVisibleIndexHidingEarlierLog() {
+    if (!widget.trimBeforeLastHighlight || _showPrecedingLog) return null;
+    if (_lastHighlightIndexValue <= 0) return null;
+    return _lastHighlightIndexValue;
   }
 
   Widget _emptyState() {

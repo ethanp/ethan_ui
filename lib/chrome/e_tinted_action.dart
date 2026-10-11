@@ -64,6 +64,39 @@ class ETintedAction extends StatelessWidget {
   final bool compact;
   final bool iconOnly;
 
+  static const compactVerticalPadding = 10.0;
+
+  /// Outer height of a compact plate with a title and subtitle.
+  ///
+  /// Includes the tinted border, which [Ink] pads inside the header slot.
+  static double compactPlateHeight(TextScaler textScaler) {
+    return ESurface.borderWidth * 2 +
+        compactVerticalPadding * 2 +
+        _lineHeight(_compactTitleStyle, textScaler) +
+        ELayout.spaceXs +
+        _lineHeight(_compactSubtitleStyle, textScaler);
+  }
+
+  static TextStyle get _compactTitleStyle => EText.label.small.copyWith(
+    letterSpacing: 0.2,
+    height: 1.15,
+  );
+
+  static TextStyle get _compactSubtitleStyle => EText.caption.copyWith(
+    fontSize: ELayout.typeSize(11),
+    height: 1.15,
+  );
+
+  static double _lineHeight(TextStyle style, TextScaler textScaler) {
+    final painter = TextPainter(
+      text: TextSpan(text: 'Ag', style: style),
+      textDirection: TextDirection.ltr,
+      textScaler: textScaler,
+      maxLines: 1,
+    )..layout();
+    return painter.height.ceilToDouble();
+  }
+
   @override
   Widget build(BuildContext context) {
     final plate = ESurface(
@@ -72,8 +105,8 @@ class ETintedAction extends StatelessWidget {
       attention: live,
       onActivated: onActivated,
       padding: EdgeInsets.symmetric(
-        horizontal: compact ? 8 : 12,
-        vertical: compact ? 6 : 12,
+        horizontal: ELayout.spaceMd,
+        vertical: compact ? compactVerticalPadding : ELayout.spaceMd,
       ),
       child: iconOnly
           ? _iconOnlyBody()
@@ -166,62 +199,53 @@ class ETintedAction extends StatelessWidget {
       children: [
         Text(
           title,
-          style: EText.label.small.copyWith(
-            color: accent,
-            letterSpacing: 0.2,
-            height: 1.15,
-          ),
+          style: _compactTitleStyle.copyWith(color: accent),
           overflow: TextOverflow.ellipsis,
           maxLines: 1,
         ),
-        if (showSubtitle)
+        if (showSubtitle) ...[
+          const SizedBox(height: ELayout.spaceXs),
           Text(
             subtitle!,
-            style: EText.caption.copyWith(
+            style: _compactSubtitleStyle.copyWith(
               color: accent.withValues(alpha: 0.62),
-              fontSize: ELayout.typeSize(12),
-              height: 1.15,
             ),
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
           ),
+        ],
       ],
     );
 
-    return SizedBox(
-      height: 44,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          // Expanded requires a bounded max width; callers sometimes pass
-          // unbounded (e.g. Wrap / loose parents).
-          final bool bounded = constraints.maxWidth.isFinite;
-          final bool showLabel =
-              !bounded || constraints.maxWidth >= 16 + ELayout.spaceSm + 20;
-          if (!showLabel) {
-            return Tooltip(
-              message: title,
-              child: Center(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Icon(icon, size: 16, color: accent),
-                ),
-              ),
-            );
-          }
-          return Row(
-            mainAxisSize: bounded ? MainAxisSize.max : MainAxisSize.min,
-            children: [
-              Icon(icon, size: 16, color: accent),
-              const SizedBox(width: ELayout.spaceSm),
-              if (bounded) Expanded(child: labelColumn) else labelColumn,
-              if (trailing != null) ...[
-                const SizedBox(width: ELayout.spaceXs),
-                trailing!,
-              ],
-            ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Expanded requires a bounded max width; callers sometimes pass
+        // unbounded (e.g. Wrap / loose parents).
+        final bool bounded = constraints.maxWidth.isFinite;
+        final bool showLabel =
+            !bounded || constraints.maxWidth >= 16 + ELayout.spaceSm + 20;
+        if (!showLabel) {
+          return Tooltip(
+            message: title,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Icon(icon, size: 16, color: accent),
+            ),
           );
-        },
-      ),
+        }
+        return Row(
+          mainAxisSize: bounded ? MainAxisSize.max : MainAxisSize.min,
+          children: [
+            Icon(icon, size: 16, color: accent),
+            const SizedBox(width: ELayout.spaceSm),
+            if (bounded) Expanded(child: labelColumn) else labelColumn,
+            if (trailing != null) ...[
+              const SizedBox(width: ELayout.spaceXs),
+              trailing!,
+            ],
+          ],
+        );
+      },
     );
   }
 }
