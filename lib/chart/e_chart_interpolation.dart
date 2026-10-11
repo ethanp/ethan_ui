@@ -56,7 +56,7 @@ enum EChartInterpolation() {
     if (endX <= startX) return polylinePath(offsets);
     final path = Path();
     var isFirstSample = true;
-    for (var sampleX = startX; sampleX <= endX; sampleX += 1) {
+    for (var sampleX = startX; sampleX < endX; sampleX += 1) {
       final sampleY = polylineYAtX(offsets, sampleX);
       if (isFirstSample) {
         path.moveTo(sampleX, sampleY);
@@ -65,6 +65,7 @@ enum EChartInterpolation() {
         path.lineTo(sampleX, sampleY);
       }
     }
+    path.lineTo(endX, polylineYAtX(offsets, endX));
     return path;
   }
 }

@@ -2,6 +2,22 @@ import 'package:ethan_ui/ethan_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  group('alongIncreasingX', () {
+    test('a finish narrower than one pixel still reaches that point', () {
+      final offsets = [
+        const Offset(0, 10),
+        const Offset(40, 30),
+        const Offset(40.2, 100),
+      ];
+      final path = EChartInterpolation.alongIncreasingX.pathThrough(offsets);
+      final metric = path.computeMetrics().single;
+      final end = metric.getTangentForOffset(metric.length)!.position;
+
+      expect(end.dx, closeTo(40.2, 1e-6));
+      expect(end.dy, closeTo(100, 1e-6));
+    });
+  });
+
   group('MonotoneCubic', () {
     test('fewer than 3 points falls back to the polyline', () {
       final two = [const Offset(0, 0), const Offset(10, 8)];
