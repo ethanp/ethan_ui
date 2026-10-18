@@ -45,7 +45,7 @@ class EChartDateScale({
 
   String caption(DateTime date) {
     return switch (_cadence) {
-      _DateTickCadence.hour => _hourCaption(date),
+      _DateTickCadence.hour => date.clockTime(),
       _DateTickCadence.year => '${date.year}',
       _DateTickCadence.month || _DateTickCadence.quarter => _monthCaption(date),
       _DateTickCadence.day || _DateTickCadence.week => _dayCaption(date),
@@ -159,13 +159,6 @@ class EChartDateScale({
       if (picked.isEmpty || picked.last != tick) picked.add(tick);
     }
     return picked;
-  }
-
-  String _hourCaption(DateTime date) {
-    final hour12 = date.hour % 12 == 0 ? 12 : date.hour % 12;
-    final minute = date.minute.toString().padLeft(2, '0');
-    final meridiem = date.hour >= 12 ? 'PM' : 'AM';
-    return '$hour12:$minute$meridiem';
   }
 
   String _monthCaption(DateTime date) {

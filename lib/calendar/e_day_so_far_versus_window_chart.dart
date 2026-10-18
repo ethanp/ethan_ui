@@ -1,3 +1,4 @@
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/material.dart';
 
 import '../chart/e_chart_value_scale.dart';
@@ -124,6 +125,7 @@ class _EDaySoFarVersusWindowChartState()
             boundLabel: true,
             label: '${pace.averagedDayCount}-day average',
             amountKey: const ValueKey('window-average-as-of'),
+            asOfClock: _selectedMinute.clockFromMidnight,
           ),
         ),
         if (!_isAtNow) ...[
@@ -152,6 +154,7 @@ class _EDaySoFarVersusWindowChartState()
     required bool boundLabel,
     required String label,
     Key? amountKey,
+    String? asOfClock,
   }) {
     final labelText = Text(
       label,
@@ -187,6 +190,14 @@ class _EDaySoFarVersusWindowChartState()
             fontWeight: FontWeight.w700,
           ),
         ),
+        if (asOfClock != null)
+          Text(
+            'at $asOfClock',
+            key: const ValueKey('window-average-as-of-time'),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: EText.label.medium.copyWith(color: pace.color),
+          ),
       ],
     );
   }
@@ -395,7 +406,10 @@ class _DaySoFarVersusWindowPainter({
   void _paintClockCaptions(Canvas canvas, _PlotFrame plot) {
     final hours = [
       for (var hour = 0; hour <= 24; hour += _hourStep)
-        _ClockCaption(minuteOfDay: hour * 60, text: _hourCaption(hour)),
+        _ClockCaption(
+          minuteOfDay: hour * 60,
+          text: (hour * 60).clockFromMidnight,
+        ),
     ];
     final laidOut = [for (final hour in hours) _laidOut(hour.text)];
     final painted = <Rect>[];
@@ -435,7 +449,7 @@ class _DaySoFarVersusWindowPainter({
   }
 
   void _paintAsOfCaption(Canvas canvas, _PlotFrame plot, List<Rect> hours) {
-    final laidOut = _laidOut(_minuteCaption(selectedMinute));
+    final laidOut = _laidOut(selectedMinute.clockFromMidnight);
     final nowX = plot.xForMinute(selectedMinute);
     final captionY = plot.bottom + 6;
     final left = (nowX - laidOut.width / 2).clamp(
@@ -447,25 +461,6 @@ class _DaySoFarVersusWindowPainter({
       if (bounds.inflate(6).overlaps(hour)) return;
     }
     laidOut.paint(canvas, Offset(left, captionY));
-  }
-
-  String _hourCaption(int hour) {
-    final onClock = hour % 24;
-    final suffix = onClock < 12 ? 'AM' : 'PM';
-    final twelve = onClock % 12 == 0 ? 12 : onClock % 12;
-    return '$twelve $suffix';
-  }
-
-  String _minuteCaption(int minuteOfDay) {
-    if (minuteOfDay >= DaySoFarVersusWindowAverage.minutesInDay) {
-      return '12 AM';
-    }
-    final hour24 = minuteOfDay ~/ 60;
-    final minute = minuteOfDay % 60;
-    final suffix = hour24 < 12 ? 'AM' : 'PM';
-    final hour = hour24 % 12 == 0 ? 12 : hour24 % 12;
-    if (minute == 0) return '$hour $suffix';
-    return '$hour:${minute.toString().padLeft(2, '0')} $suffix';
   }
 
   TextPainter _laidOut(String text) {

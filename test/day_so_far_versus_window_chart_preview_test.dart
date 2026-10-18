@@ -29,6 +29,7 @@ void main() {
 
     final atNow = _averageAmount(tester);
     expect(atNow, greaterThan(1));
+    expect(_averageAsOf(tester), '8 PM');
     expect(find.byKey(const ValueKey('clear-as-of-now')), findsNothing);
 
     final plot = tester.getRect(find.byKey(const ValueKey('today-versus-window')));
@@ -36,6 +37,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(_averageAmount(tester), lessThan(atNow));
+    expect(_averageAsOf(tester), isNot('8 PM'));
     expect(find.byKey(const ValueKey('clear-as-of-now')), findsOneWidget);
     expect(find.byIcon(Icons.close), findsOneWidget);
 
@@ -43,6 +45,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(_averageAmount(tester), atNow);
+    expect(_averageAsOf(tester), '8 PM');
     expect(find.byKey(const ValueKey('clear-as-of-now')), findsNothing);
   });
 
@@ -198,6 +201,13 @@ double _averageAmount(WidgetTester tester) {
       .widget<Text>(find.byKey(const ValueKey('window-average-as-of')))
       .data!;
   return double.parse(caption.replaceAll('mg', ''));
+}
+
+String _averageAsOf(WidgetTester tester) {
+  final caption = tester
+      .widget<Text>(find.byKey(const ValueKey('window-average-as-of-time')))
+      .data!;
+  return caption.replaceFirst('at ', '');
 }
 
 Future<void> _expectPreview(WidgetTester tester, String filename) {
