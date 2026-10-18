@@ -135,9 +135,15 @@ class _LogTextViewState() extends State<LogTextView> {
     final canRevealPreceding =
         widget.trimBeforeLastHighlight && _lastHighlightIndexValue > 0;
 
-    final body = visibleLines.isEmpty
-        ? _emptyState()
-        : _selectableLogLines(visibleLines);
+    if (visibleLines.isEmpty) {
+      if (widget.maxHeight == null) return _emptyState();
+      return ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: widget.maxHeight!),
+        child: _emptyState(),
+      );
+    }
+
+    final body = _selectableLogLines(visibleLines);
 
     final scrollable = Scrollbar(controller: _scrollController, child: body);
 
