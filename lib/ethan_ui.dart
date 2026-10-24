@@ -2,6 +2,7 @@
 library;
 
 export 'chart/e_chart.dart';
+export 'chart/e_chart_legend.dart';
 export 'chart/e_chart_annotation.dart';
 export 'chart/e_chart_chrome.dart';
 export 'chart/e_chart_hit_test.dart';
@@ -40,8 +41,10 @@ export 'theme/e_text.dart';
 export 'theme/e_theme.dart';
 
 export 'chrome/e_app_header.dart';
+export 'chrome/e_labeled_loading_bar.dart';
 export 'chrome/e_card.dart';
 export 'chrome/e_empty_state.dart';
+export 'chrome/e_error_card.dart';
 export 'chrome/e_filter_chip.dart';
 export 'chrome/e_flush_leading_card.dart';
 export 'chrome/e_list_row.dart';
@@ -51,6 +54,7 @@ export 'chrome/e_privacy_lock_look.dart';
 export 'chrome/e_pin_lock_and_switcher_shield.dart';
 export 'chrome/e_privacy_screen.dart';
 export 'chrome/e_overlaid_tab_bar.dart';
+export 'chrome/e_popover.dart';
 export 'chrome/e_scaffold_shell.dart';
 export 'chrome/e_section_header.dart';
 export 'chrome/e_segmented_control.dart';

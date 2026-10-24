@@ -26,7 +26,11 @@ abstract final class EText() {
   static const body = _EBodyScale();
   static const label = _ELabelScale();
 
-  static TextStyle get title => headline.large;
+  static TextStyle get title => headline. _base.copyWith(
+    fontSize: _size(17),
+    height: 1.25,
+    letterSpacing: -0.2,
+  );
 
   static TextStyle get projectName => headline.small;
 

@@ -4,12 +4,12 @@ import '../theme/e_colors.dart';
 import '../theme/e_text.dart';
 import 'e_status_chip.dart';
 
-/// How far through a thing: optional labels plus a hairline track.
+/// How far through a thing: [leadingLabel] names what the track measures.
 ///
 /// Not a nested card — sit this on the parent surface with type and spacing.
 class const EProgressMeter({
   required final double value,
-  final String? leadingLabel,
+  required final String leadingLabel,
   final String? trailingLabel,
   final EStatusTone tone = EStatusTone.success,
 }) extends StatelessWidget {
@@ -18,10 +18,8 @@ class const EProgressMeter({
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (leadingLabel != null || trailingLabel != null) ...[
-          _labels(),
-          const SizedBox(height: 4),
-        ],
+        _labels(),
+        const SizedBox(height: 4),
         _track(),
       ],
     );
@@ -30,17 +28,15 @@ class const EProgressMeter({
   Widget _labels() {
     return Row(
       children: [
-        if (leadingLabel != null)
-          Text(
-            leadingLabel!,
-            style: EText.caption.copyWith(
-              color: tone.foreground,
-              fontWeight: FontWeight.w600,
-            ),
+        Text(
+          leadingLabel,
+          style: EText.caption.copyWith(
+            color: tone.foreground,
+            fontWeight: FontWeight.w600,
           ),
-        if (leadingLabel != null && trailingLabel != null)
+        ),
+        if (trailingLabel != null) ...[
           const SizedBox(width: 8),
-        if (trailingLabel != null)
           Expanded(
             child: Text(
               trailingLabel!,
@@ -50,6 +46,7 @@ class const EProgressMeter({
               textAlign: TextAlign.end,
             ),
           ),
+        ],
       ],
     );
   }

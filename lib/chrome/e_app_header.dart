@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../theme/e_colors.dart';
 import '../theme/e_layout.dart';
 import '../theme/e_text.dart';
+import 'e_labeled_loading_bar.dart';
 import 'e_tinted_action.dart';
 
 /// Frost-ready screen header: accent mark, title stack, trailing actions.
@@ -30,11 +31,20 @@ class const EAppHeader({
   /// When null, height is derived from the title stack and action plate.
   final double? height,
   final bool automaticallyImplyLeading = true,
+
+  /// Indeterminate reload strip under the title row; caption names what is loading.
+  final String? reloadProgressLabel,
 }) extends StatelessWidget implements PreferredSizeWidget {
   Color get _accent => accent ?? EColors.accentGlow;
 
   @override
-  Size get preferredSize => Size.fromHeight(height ?? _contentHeight);
+  Size get preferredSize {
+    var totalHeight = height ?? _contentHeight;
+    if (reloadProgressLabel != null) {
+      totalHeight += ELabeledLoadingBar.layoutHeight(_viewTextScaler);
+    }
+    return Size.fromHeight(totalHeight);
+  }
 
   double get _contentHeight {
     final TextScaler textScaler = _viewTextScaler;
@@ -145,35 +155,54 @@ class const EAppHeader({
             bottom: BorderSide(color: EColors.border.withValues(alpha: 0.55)),
           ),
         ),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(
-            ELayout.spaceLg,
-            ELayout.spaceSm,
-            ELayout.spaceMd,
-            ELayout.spaceSm,
-          ),
-          child: Row(
-            children: [
-              if (leading != null) ...[
-                leading!,
-                const SizedBox(width: ELayout.spaceSm),
-              ] else if (showBack) ...[
-                IconButton(
-                  tooltip: 'Back',
-                  onPressed: () => Navigator.maybePop(context),
-                  icon: const Icon(Icons.arrow_back_rounded),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                ELayout.spaceLg,
+                ELayout.spaceSm,
+                ELayout.spaceMd,
+                ELayout.spaceSm,
+              ),
+              child: Row(
+                children: [
+                  if (leading != null) ...[
+                    leading!,
+                    const SizedBox(width: ELayout.spaceSm),
+                  ] else if (showBack) ...[
+                    IconButton(
+                      tooltip: 'Back',
+                      onPressed: () => Navigator.maybePop(context),
+                      icon: const Icon(Icons.arrow_back_rounded),
+                    ),
+                    const SizedBox(width: ELayout.spaceXs),
+                  ],
+                  _HeaderAccentMark(accent: _accent),
+                  const SizedBox(width: ELayout.spaceMd),
+                  Expanded(child: _titleStack()),
+                  for (final action in actions) ...[
+                    const SizedBox(width: ELayout.spaceSm),
+                    action,
+                  ],
+                ],
+              ),
+            ),
+            if (reloadProgressLabel != null)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  ELayout.spaceLg,
+                  0,
+                  ELayout.spaceMd,
+                  ELayout.spaceXs,
                 ),
-                const SizedBox(width: ELayout.spaceXs),
-              ],
-              _HeaderAccentMark(accent: _accent),
-              const SizedBox(width: ELayout.spaceMd),
-              Expanded(child: _titleStack()),
-              for (final action in actions) ...[
-                const SizedBox(width: ELayout.spaceSm),
-                action,
-              ],
-            ],
-          ),
+                child: ELabeledLoadingBar(
+                  label: reloadProgressLabel!,
+                  color: _accent,
+                ),
+              ),
+          ],
         ),
       ),
     );
