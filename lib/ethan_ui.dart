@@ -47,6 +47,7 @@ export 'chrome/e_empty_state.dart';
 export 'chrome/e_error_card.dart';
 export 'chrome/e_filter_chip.dart';
 export 'chrome/e_flush_leading_card.dart';
+export 'chrome/e_label_value_table.dart';
 export 'chrome/e_list_row.dart';
 export 'chrome/e_progress_meter.dart';
 export 'chrome/e_pin_lock_screen.dart';
@@ -67,6 +68,8 @@ export 'chrome/e_toolbar.dart';
 
 export 'widgets/app_log_viewer.dart';
 export 'widgets/e_app_log_viewer.dart';
+export 'widgets/e_copyable_rows_selection_area.dart';
+export 'widgets/e_load_error_view.dart';
 export 'widgets/e_panel.dart';
 export 'widgets/e_text_field.dart';
 export 'widgets/error_report_body.dart';

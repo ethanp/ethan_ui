@@ -28,6 +28,9 @@ class const EChartLegend({required final List<EChartLegendEntry> entries})
     extends StatelessWidget {
   static const _minColumnWidth = 240.0;
 
+  /// Past this, a column's value drifts away from its name.
+  static const _maxColumnWidth = 320.0;
+
   @override
   Widget build(BuildContext context) {
     if (entries.isEmpty) return const SizedBox.shrink();
@@ -41,15 +44,18 @@ class const EChartLegend({required final List<EChartLegendEntry> entries})
     final fittedCount = (maxWidth / _minColumnWidth).floor();
     final columnCount = math.max(1, math.min(entries.length, fittedCount));
     final rowCount = (entries.length / columnCount).ceil();
+    final columnWidth = math.min(maxWidth / columnCount, _maxColumnWidth);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         for (var column = 0; column < columnCount; column++)
-          Expanded(
+          SizedBox(
+            width: columnWidth,
             child: _column(
               column,
               rowCount,
               showLeadingRule: column > 0,
+              hasNextColumn: column < columnCount - 1,
             ),
           ),
       ],
@@ -75,7 +81,14 @@ class const EChartLegend({required final List<EChartLegendEntry> entries})
     );
   }
 
-  Widget _column(int column, int rowCount, {required bool showLeadingRule}) {
+  /// Values sit [ELayout.spaceMd] off the rule on both sides, so a
+  /// right-aligned amount never touches the next column's rule.
+  Widget _column(
+    int column,
+    int rowCount, {
+    required bool showLeadingRule,
+    required bool hasNextColumn,
+  }) {
     final rows = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -84,15 +97,19 @@ class const EChartLegend({required final List<EChartLegendEntry> entries})
             _entry(entries[column * rowCount + row], expandLabel: true),
       ],
     );
-    if (!showLeadingRule) return rows;
+    final paddedRows = Padding(
+      padding: EdgeInsets.only(
+        left: showLeadingRule ? ELayout.spaceMd : 0,
+        right: hasNextColumn ? ELayout.spaceMd : 0,
+      ),
+      child: rows,
+    );
+    if (!showLeadingRule) return paddedRows;
     return DecoratedBox(
       decoration: const BoxDecoration(
         border: Border(left: BorderSide(color: EColors.borderStrong)),
       ),
-      child: Padding(
-        padding: const EdgeInsets.only(left: ELayout.spaceMd),
-        child: rows,
-      ),
+      child: paddedRows,
     );
   }
 
