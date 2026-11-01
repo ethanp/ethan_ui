@@ -84,7 +84,14 @@ class _EMonthStackCalendarState<TId>() extends State<EMonthStackCalendar<TId>> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            for (final month in months) _month(month, metrics),
+            for (final month in months)
+              _month(
+                month,
+                metrics,
+                nextMonthShown: months.contains(
+                  DateTime(month.year, month.month + 1, 1),
+                ),
+              ),
           ],
         );
       },
@@ -146,7 +153,11 @@ class _EMonthStackCalendarState<TId>() extends State<EMonthStackCalendar<TId>> {
     return false;
   }
 
-  Widget _month(DateTime monthStart, EMonthStackMetrics metrics) {
+  Widget _month(
+    DateTime monthStart,
+    EMonthStackMetrics metrics, {
+    required bool nextMonthShown,
+  }) {
     final daysInMonth = DateTime(monthStart.year, monthStart.month + 1, 0).day;
     return Padding(
       padding: const EdgeInsets.only(bottom: ELayout.spaceMd),
@@ -155,7 +166,12 @@ class _EMonthStackCalendarState<TId>() extends State<EMonthStackCalendar<TId>> {
         children: [
           _monthHeader(monthStart, metrics),
           _weekdayHeaders(metrics),
-          ..._weekRows(monthStart, daysInMonth, metrics),
+          ..._weekRows(
+            monthStart,
+            daysInMonth,
+            metrics,
+            nextMonthShown: nextMonthShown,
+          ),
         ],
       ),
     );
@@ -219,9 +235,7 @@ class _EMonthStackCalendarState<TId>() extends State<EMonthStackCalendar<TId>> {
     return Padding(
       padding: const EdgeInsets.only(left: EMonthStackMetrics.summaryGap),
       child: SizedBox(
-        key: ValueKey(
-          'e-cal-month-${monthStart.year}-${monthStart.month}',
-        ),
+        key: ValueKey('e-cal-month-${monthStart.year}-${monthStart.month}'),
         width: metrics.summaryWidth,
         child: presentation != null && !presentation.isEmpty
             ? EMonthStackPeriodSummary(presentation: presentation)
@@ -247,24 +261,32 @@ class _EMonthStackCalendarState<TId>() extends State<EMonthStackCalendar<TId>> {
             ),
           ),
         if (metrics.showsPeriodSummaries)
-          SizedBox(
-            width: metrics.summaryWidth + EMonthStackMetrics.summaryGap,
-          ),
+          SizedBox(width: metrics.summaryWidth + EMonthStackMetrics.summaryGap),
       ],
     );
   }
 
+  /// A week's summary sits on the row holding its Sunday. When that Sunday
+  /// falls in a month that is not shown, it sits on this month's last row.
   List<Widget> _weekRows(
     DateTime monthStart,
     int daysInMonth,
-    EMonthStackMetrics metrics,
-  ) {
+    EMonthStackMetrics metrics, {
+    required bool nextMonthShown,
+  }) {
     final firstWeekday = DateTime(monthStart.year, monthStart.month, 1).weekday;
     final totalSlots = firstWeekday - 1 + daysInMonth;
     final weekCount = (totalSlots / DateTime.daysPerWeek).ceil();
     return [
       for (var week = 0; week < weekCount; week++)
-        _weekRow(monthStart, daysInMonth, week, firstWeekday, metrics),
+        _weekRow(
+          monthStart,
+          daysInMonth,
+          week,
+          firstWeekday,
+          metrics,
+          summarizesSpilloverWeek: week == weekCount - 1 && !nextMonthShown,
+        ),
     ];
   }
 
@@ -273,19 +295,23 @@ class _EMonthStackCalendarState<TId>() extends State<EMonthStackCalendar<TId>> {
     int daysInMonth,
     int week,
     int firstWeekday,
-    EMonthStackMetrics metrics,
-  ) {
+    EMonthStackMetrics metrics, {
+    required bool summarizesSpilloverWeek,
+  }) {
     final cells = <Widget>[];
     var sundayIsInMonth = false;
-    for (var weekdayIndex = 0; weekdayIndex < DateTime.daysPerWeek; weekdayIndex++) {
+    for (
+      var weekdayIndex = 0;
+      weekdayIndex < DateTime.daysPerWeek;
+      weekdayIndex++
+    ) {
       final dayOffset =
           week * DateTime.daysPerWeek + weekdayIndex - (firstWeekday - 1);
       final isInMonth = dayOffset >= 0 && dayOffset < daysInMonth;
       if (!isInMonth) {
-        cells.add(SizedBox(
-          width: metrics.cellExtent,
-          height: metrics.cellExtent,
-        ));
+        cells.add(
+          SizedBox(width: metrics.cellExtent, height: metrics.cellExtent),
+        );
         continue;
       }
       if (weekdayIndex == 6) sundayIsInMonth = true;
@@ -301,10 +327,12 @@ class _EMonthStackCalendarState<TId>() extends State<EMonthStackCalendar<TId>> {
           ...cells,
           if (metrics.showsPeriodSummaries)
             _weekSummary(
-              monthStart,
-              week,
-              firstWeekday,
-              sundayIsInMonth,
+              DateTime(
+                monthStart.year,
+                monthStart.month,
+                1 + week * DateTime.daysPerWeek - (firstWeekday - 1),
+              ),
+              sundayIsInMonth || summarizesSpilloverWeek,
               metrics,
             ),
         ],
@@ -313,22 +341,13 @@ class _EMonthStackCalendarState<TId>() extends State<EMonthStackCalendar<TId>> {
   }
 
   Widget _weekSummary(
-    DateTime monthStart,
-    int week,
-    int firstWeekday,
-    bool sundayIsInMonth,
+    DateTime weekMonday,
+    bool summarizesWeek,
     EMonthStackMetrics metrics,
   ) {
-    ECalendarPeriodPresentation? presentation;
-    if (sundayIsInMonth) {
-      final sundayOffset = week * DateTime.daysPerWeek + 6 - (firstWeekday - 1);
-      final sunday = DateTime(
-        monthStart.year,
-        monthStart.month,
-        sundayOffset + 1,
-      );
-      presentation = widget.weekPresentation!(sunday.shiftedByDays(-6));
-    }
+    final ECalendarPeriodPresentation? presentation = summarizesWeek
+        ? widget.weekPresentation?.call(weekMonday)
+        : null;
     return Padding(
       padding: const EdgeInsets.only(left: EMonthStackMetrics.summaryGap),
       child: SizedBox(
@@ -352,8 +371,8 @@ class _EMonthStackCalendarState<TId>() extends State<EMonthStackCalendar<TId>> {
 
     return GestureDetector(
       onTap: () => _activateDay(presentation),
-      onLongPress: widget.onMultiSelectConfirmed != null &&
-              !_multiSelect.isSelecting
+      onLongPress:
+          widget.onMultiSelectConfirmed != null && !_multiSelect.isSelecting
           ? () => setState(() => _multiSelect.enter(date))
           : null,
       child: Semantics(

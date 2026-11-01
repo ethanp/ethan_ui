@@ -29,6 +29,7 @@ class const ESurface({
   required final ESurfaceKind kind,
   required final Widget child,
   final EdgeInsetsGeometry? padding,
+  final EdgeInsetsGeometry? margin,
   final Color? accent,
   final bool attention = false,
   final VoidCallback? onActivated,
@@ -38,6 +39,12 @@ class const ESurface({
 
   @override
   Widget build(BuildContext context) {
+    final Widget surface = _decoratedSurface();
+    if (margin == null) return surface;
+    return Padding(padding: margin!, child: surface);
+  }
+
+  Widget _decoratedSurface() {
     final radius =
         borderRadius ??
         ELayout.borderRadius(switch (kind) {

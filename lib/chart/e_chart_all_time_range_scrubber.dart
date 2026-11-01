@@ -40,8 +40,8 @@ class const EChartAllTimeRangeScrubber({
 }) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final fullStart = rangeStart?.startOfDay ?? _earliestDate();
-    final fullEnd = rangeEnd?.startOfDay ?? _latestDate();
+    final fullStart = (rangeStart ?? _earliestDate())?.startOfDay;
+    final fullEnd = (rangeEnd ?? _latestDate())?.startOfDay;
     if (fullStart == null || fullEnd == null) return const SizedBox.shrink();
     final drawnLines = [
       if (samples.length >= 2)
@@ -67,11 +67,12 @@ class const EChartAllTimeRangeScrubber({
     );
   }
 
+  /// Raw dates compare in the same order as their days, so only the winner
+  /// pays for [DateTimeExtensions.startOfDay].
   DateTime? _earliestDate() {
     DateTime? earliest;
     void consider(DateTime date) {
-      final day = date.startOfDay;
-      if (earliest == null || day.isBefore(earliest!)) earliest = day;
+      if (earliest == null || date.isBefore(earliest!)) earliest = date;
     }
 
     for (final sample in samples) {
@@ -91,8 +92,7 @@ class const EChartAllTimeRangeScrubber({
   DateTime? _latestDate() {
     DateTime? latest;
     void consider(DateTime date) {
-      final day = date.startOfDay;
-      if (latest == null || day.isAfter(latest!)) latest = day;
+      if (latest == null || date.isAfter(latest!)) latest = date;
     }
 
     for (final sample in samples) {
@@ -234,17 +234,21 @@ class _AllTimeRangePlot({
   }
 }
 
-class _MinimapDateAxis({
-  required final DateTime start,
-  required final DateTime end,
-}) {
+/// Runs once per plotted point, so it counts calendar days through a UTC day
+/// number instead of building a local `DateTime` (a time-zone lookup) per
+/// point. UTC days also keep a DST day from rounding down to the day before.
+class _MinimapDateAxis({required DateTime start, required DateTime end}) {
+  final int _startDayNumber = _calendarDayNumber(start);
+  final int _spanDays = _calendarDayNumber(end) - _calendarDayNumber(start);
+
   double xAt(DateTime date, double width) {
-    final spanDays = end.startOfDay.difference(start.startOfDay).inDays;
-    if (spanDays <= 0 || width <= 0) return 0;
-    return date.startOfDay.difference(start.startOfDay).inDays /
-        spanDays *
-        width;
+    if (_spanDays <= 0 || width <= 0) return 0;
+    return (_calendarDayNumber(date) - _startDayNumber) / _spanDays * width;
   }
+
+  static int _calendarDayNumber(DateTime date) =>
+      DateTime.utc(date.year, date.month, date.day).millisecondsSinceEpoch ~/
+      Duration.millisecondsPerDay;
 
   Rect span({
     required DateTime start,

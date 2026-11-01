@@ -22,6 +22,10 @@ class const AppLogViewerStyle({
 });
 
 /// In-app viewer for [appLogBuffer] entries (filter, clear, hug).
+///
+/// The visible lines are recomputed only when the buffer or the filter
+/// changes, never during build, so a chatty app does not make the log pane
+/// re-filter and re-scroll on every frame.
 class const AppLogViewer({
   required final AppLogViewerStyle style,
   final String emptyMessage = 'No logs yet',
@@ -37,70 +41,87 @@ class const AppLogViewer({
 
 class _AppLogViewerState() extends State<AppLogViewer> {
   final TextEditingController _filterController = TextEditingController();
-  String _filterText = '';
+  RegExp? _filterRegex;
+  bool _filterIsInvalidRegex = false;
+  List<LogTextLine> _visibleLines = const [];
+  int _totalEntryCount = 0;
 
   @override
   void initState() {
     super.initState();
-    _filterController.addListener(_syncFilterTextFromController);
+    _filterController.addListener(_applyFilterText);
+    appLogBuffer.addListener(_refreshVisibleLines);
+    _totalEntryCount = appLogBuffer.entries.length;
+    _visibleLines = _linesMatchingFilter();
+  }
+
+  @override
+  void didUpdateWidget(covariant AppLogViewer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (identical(oldWidget.style, widget.style)) return;
+    _visibleLines = _linesMatchingFilter();
   }
 
   @override
   void dispose() {
+    appLogBuffer.removeListener(_refreshVisibleLines);
     _filterController.dispose();
     super.dispose();
   }
 
-  void _syncFilterTextFromController() {
-    setState(() => _filterText = _filterController.text);
+  void _applyFilterText() {
+    final String filterText = _filterController.text;
+    RegExp? filterRegex;
+    var invalid = false;
+    if (filterText.isNotEmpty) {
+      try {
+        filterRegex = RegExp(filterText, caseSensitive: false);
+      } on FormatException {
+        invalid = true;
+      }
+    }
+    _filterRegex = filterRegex;
+    _filterIsInvalidRegex = invalid;
+    _refreshVisibleLines();
   }
 
-  List<AppLogEntry> _entriesMatchingFilterRegex(List<AppLogEntry> entries) {
-    if (_filterText.isEmpty) return entries;
-    try {
-      final regex = RegExp(_filterText, caseSensitive: false);
-      return entries
-          .where((entry) => regex.hasMatch(entry.formattedText))
-          .toList(growable: false);
-    } on FormatException {
-      return entries;
-    }
+  void _refreshVisibleLines() {
+    if (!mounted) return;
+    setState(() {
+      _totalEntryCount = appLogBuffer.entries.length;
+      _visibleLines = _linesMatchingFilter();
+    });
   }
 
-  bool get _filterIsInvalidRegex {
-    if (_filterText.isEmpty) return false;
-    try {
-      RegExp(_filterText);
-      return false;
-    } on FormatException {
-      return true;
-    }
+  List<LogTextLine> _linesMatchingFilter() {
+    final RegExp? filterRegex = _filterRegex;
+    return [
+      for (final entry in appLogBuffer.entries)
+        if (filterRegex == null || filterRegex.hasMatch(entry.formattedText))
+          LogTextLine(
+            text: entry.formattedText,
+            color: _colorForLogLevel(entry.level),
+          ),
+    ];
   }
 
   @override
   Widget build(BuildContext context) {
-    final viewer = AnimatedBuilder(
-      animation: appLogBuffer,
-      builder: (context, child) {
-        final allEntries = appLogBuffer.entries;
-        final visibleEntries = _entriesMatchingFilterRegex(allEntries);
-        return Material(
-          color: widget.style.surface,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(widget.style.radius),
-            side: BorderSide(color: widget.style.border),
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _header(visibleEntries.length, allEntries.length),
-              Container(height: 1, color: widget.style.border),
-              _logTextPane(visibleEntries),
-            ],
-          ),
-        );
-      },
+    final viewer = Material(
+      color: widget.style.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(widget.style.radius),
+        side: BorderSide(color: widget.style.border),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _header(),
+          Container(height: 1, color: widget.style.border),
+          _logTextPane(),
+        ],
+      ),
     );
 
     // Material TextField / IconButton need MaterialLocalizations; CupertinoApp
@@ -122,10 +143,10 @@ class _AppLogViewerState() extends State<AppLogViewer> {
     );
   }
 
-  Widget _header(int visibleCount, int totalCount) {
-    final countLabel = _filterText.isEmpty
-        ? 'Logs ($totalCount)'
-        : 'Logs ($visibleCount / $totalCount)';
+  Widget _header() {
+    final String countLabel = _filterRegex == null && !_filterIsInvalidRegex
+        ? 'Logs ($_totalEntryCount)'
+        : 'Logs (${_visibleLines.length} / $_totalEntryCount)';
     return Padding(
       padding: EdgeInsets.fromLTRB(
         widget.style.spacingMd,
@@ -185,7 +206,7 @@ class _AppLogViewerState() extends State<AppLogViewer> {
           borderRadius: BorderRadius.circular(widget.style.radius * 0.67),
           borderSide: BorderSide(color: borderColor, width: 1.5),
         ),
-        suffixIcon: _filterText.isEmpty
+        suffixIcon: _filterController.text.isEmpty
             ? null
             : IconButton(
                 tooltip: 'Clear filter',
@@ -215,16 +236,9 @@ class _AppLogViewerState() extends State<AppLogViewer> {
     );
   }
 
-  Widget _logTextPane(List<AppLogEntry> entries) {
-    final logLines = [
-      for (final entry in entries)
-        LogTextLine(
-          text: entry.formattedText,
-          color: _colorForLogLevel(entry.level),
-        ),
-    ];
+  Widget _logTextPane() {
     final viewer = LogTextView(
-      lines: logLines,
+      lines: _visibleLines,
       emptyMessage: widget.emptyMessage,
       maxHeight: widget.maxBodyHeight,
       padding: EdgeInsets.symmetric(

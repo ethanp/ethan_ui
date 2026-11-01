@@ -377,12 +377,28 @@ class _LogTextViewState() extends State<LogTextView> {
     if (enableHug) _scrollToBottomOnce();
   }
 
-  void _scrollToBottomOnce() {
+  void _scrollToBottomOnce() =>
+      _jumpToBottomUntilExtentSettles(remainingFrames: 10);
+
+  /// Wrapped lines have unknown heights, so [ScrollPosition.maxScrollExtent]
+  /// is an estimate until the last lines are laid out. Jump, let that frame
+  /// lay them out, and jump again while the extent keeps growing.
+  void _jumpToBottomUntilExtentSettles({required int remainingFrames}) {
     if (!_scrollController.hasClients) return;
     _programmaticScrollInProgress = true;
-    _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+    final ScrollPosition position = _scrollController.position;
+    position.jumpTo(position.maxScrollExtent);
+    WidgetsBinding.instance.ensureVisualUpdate();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
+      final bool belowBottom =
+          _scrollController.hasClients &&
+          _scrollController.position.pixels <
+              _scrollController.position.maxScrollExtent;
+      if (belowBottom && remainingFrames > 0) {
+        _jumpToBottomUntilExtentSettles(remainingFrames: remainingFrames - 1);
+        return;
+      }
       _programmaticScrollInProgress = false;
     });
   }

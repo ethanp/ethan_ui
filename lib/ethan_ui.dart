@@ -1,6 +1,9 @@
 /// Shared machined-console UI: graphite metal surfaces, frost chrome, IBM Plex.
 library;
 
+export 'app_launch/app_error_capture.dart';
+export 'app_launch/e_app.dart';
+export 'app_launch/error_bus.dart';
 export 'chart/e_chart.dart';
 export 'chart/e_chart_legend.dart';
 export 'chart/e_chart_annotation.dart';
@@ -49,6 +52,7 @@ export 'chrome/e_filter_chip.dart';
 export 'chrome/e_flush_leading_card.dart';
 export 'chrome/e_label_value_table.dart';
 export 'chrome/e_list_row.dart';
+export 'chrome/e_main_tab_screen.dart';
 export 'chrome/e_progress_meter.dart';
 export 'chrome/e_pin_lock_screen.dart';
 export 'chrome/e_privacy_lock_look.dart';
@@ -59,6 +63,7 @@ export 'chrome/e_popover.dart';
 export 'chrome/e_scaffold_shell.dart';
 export 'chrome/e_section_header.dart';
 export 'chrome/e_segmented_control.dart';
+export 'chrome/e_settings_section.dart';
 export 'chrome/e_side_panel.dart';
 export 'chrome/e_status_chip.dart';
 export 'chrome/e_surface.dart';
@@ -67,7 +72,9 @@ export 'chrome/e_tinted_action.dart';
 export 'chrome/e_toolbar.dart';
 
 export 'widgets/app_log_viewer.dart';
+export 'widgets/e_app_log_screen.dart';
 export 'widgets/e_app_log_viewer.dart';
+export 'widgets/e_error_banner.dart';
 export 'widgets/e_copyable_rows_selection_area.dart';
 export 'widgets/e_load_error_view.dart';
 export 'widgets/e_panel.dart';

@@ -99,31 +99,29 @@ void main() {
     expect(decoration.border?.top.color, EHeatmapIntensity.todayRing);
   });
 
-  testWidgets('measured heat and recorded-without-measure use different fills', (
-    tester,
-  ) async {
-    await pumpCalendar(tester);
-    final measured = tester.widget<Container>(
-      find.descendant(
-        of: find.byKey(const ValueKey('e-cal-day-2026-9-8')),
-        matching: find.byType(Container),
-      ),
-    );
-    final recorded = tester.widget<Container>(
-      find.descendant(
-        of: find.byKey(const ValueKey('e-cal-day-2026-9-9')),
-        matching: find.byType(Container),
-      ),
-    );
-    expect(
-      (measured.decoration! as BoxDecoration).color,
-      EHeatmapIntensity.colorAt(0.5),
-    );
-    expect(
-      (recorded.decoration! as BoxDecoration).color,
-      EColors.surface,
-    );
-  });
+  testWidgets(
+    'measured heat and recorded-without-measure use different fills',
+    (tester) async {
+      await pumpCalendar(tester);
+      final measured = tester.widget<Container>(
+        find.descendant(
+          of: find.byKey(const ValueKey('e-cal-day-2026-9-8')),
+          matching: find.byType(Container),
+        ),
+      );
+      final recorded = tester.widget<Container>(
+        find.descendant(
+          of: find.byKey(const ValueKey('e-cal-day-2026-9-9')),
+          matching: find.byType(Container),
+        ),
+      );
+      expect(
+        (measured.decoration! as BoxDecoration).color,
+        EHeatmapIntensity.colorAt(0.5),
+      );
+      expect((recorded.decoration! as BoxDecoration).color, EColors.surface);
+    },
+  );
 
   testWidgets('week and month summaries name active days without heat color', (
     tester,
@@ -134,9 +132,67 @@ void main() {
     expect(find.byKey(const ValueKey('e-cal-month-2026-9')), findsOneWidget);
   });
 
+  group('week spilling into the next month', () {
+    ECalendarDayPresentation<DateTime> activeOnSep29(DateTime date) {
+      final day = date.startOfDay;
+      return ECalendarDayPresentation(
+        date: day,
+        id: day,
+        semanticsLabel: 'day ${day.day}',
+        visual: day.sameDayAs(DateTime(2026, 9, 29))
+            ? const ECalendarDayMeasuredHeat(intensity: 0.5)
+            : const ECalendarDayEmpty(),
+      );
+    }
+
+    ECalendarPeriodPresentation spilloverWeek(DateTime weekMonday) =>
+        ECalendarPeriodPresentation(
+          activeDays: weekMonday.sameDayAs(DateTime(2026, 9, 28)) ? 1 : 0,
+          measureCaption: weekMonday.sameDayAs(DateTime(2026, 9, 28))
+              ? 'spillover'
+              : null,
+        );
+
+    Future<void> pumpThrough(WidgetTester tester, DateTime lastMonth) {
+      return tester.pumpWidget(
+        MaterialApp(
+          theme: ETheme.material3Dark,
+          home: Scaffold(
+            body: EMonthStackCalendar<DateTime>(
+              firstVisibleMonth: DateTime(2026, 9, 1),
+              lastVisibleMonth: lastMonth,
+              today: today,
+              omitEmptyMonths: false,
+              presentationFor: activeOnSep29,
+              weekPresentation: spilloverWeek,
+              onDaySelected: (_) {},
+            ),
+          ),
+        ),
+      );
+    }
+
+    testWidgets('is summarized on the last row when it is the last month', (
+      tester,
+    ) async {
+      await pumpThrough(tester, DateTime(2026, 9, 1));
+      expect(find.text('spillover'), findsOneWidget);
+    });
+
+    testWidgets('is summarized once, on the next month row with its Sunday', (
+      tester,
+    ) async {
+      await pumpThrough(tester, DateTime(2026, 10, 1));
+      expect(find.text('spillover'), findsOneWidget);
+    });
+  });
+
   testWidgets('multi-select confirms stamped identities', (tester) async {
     List<ECalendarDayPresentation<DateTime>>? confirmed;
-    await pumpCalendar(tester, onMultiSelectConfirmed: (days) => confirmed = days);
+    await pumpCalendar(
+      tester,
+      onMultiSelectConfirmed: (days) => confirmed = days,
+    );
     await tester.longPress(find.byKey(const ValueKey('e-cal-day-2026-9-8')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('e-cal-day-2026-9-9')));
@@ -162,8 +218,7 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(
       find.byWidgetPredicate(
-        (widget) =>
-            widget is Scrollable && widget.axis == Axis.horizontal,
+        (widget) => widget is Scrollable && widget.axis == Axis.horizontal,
       ),
       findsNothing,
     );
