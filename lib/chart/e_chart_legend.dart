@@ -1,5 +1,7 @@
 import 'dart:math' as math;
 
+import 'package:ethan_utils/ethan_utils.dart';
+
 import 'package:flutter/material.dart';
 
 import '../theme/e_colors.dart';
@@ -69,15 +71,14 @@ class const EChartLegend({required final List<EChartLegendEntry> entries})
         1: IntrinsicColumnWidth(),
       },
       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-      children: [
-        for (final entry in entries)
-          TableRow(
-            children: [
-              _entry(entry, expandLabel: false, includeValue: false),
-              _valueCell(entry),
-            ],
-          ),
-      ],
+      children: entries.mapL(
+        (entry) => TableRow(
+          children: [
+            _entry(entry, expandLabel: false, includeValue: false),
+            _valueCell(entry),
+          ],
+        ),
+      ),
     );
   }
 
@@ -207,7 +208,9 @@ class const EChartLegend({required final List<EChartLegendEntry> entries})
             ),
             maxLines: 1,
             softWrap: false,
-            overflow: expandLabel ? TextOverflow.ellipsis : TextOverflow.visible,
+            overflow: expandLabel
+                ? TextOverflow.ellipsis
+                : TextOverflow.visible,
           ),
         ),
       ],
@@ -232,9 +235,6 @@ class const EChartLegend({required final List<EChartLegendEntry> entries})
             decorationColor: EColors.textMuted,
           )
         : style;
-    return colored.copyWith(
-      fontFeatures: const [FontFeature.tabularFigures()],
-    );
+    return colored.copyWith(fontFeatures: const [FontFeature.tabularFigures()]);
   }
 }
-

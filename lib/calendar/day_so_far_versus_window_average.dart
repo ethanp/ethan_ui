@@ -26,8 +26,7 @@ class const DaySoFarVersusWindowAverage({
     ).inWindow(windowStart: windowStart, windowEnd: windowEnd);
   }
 
-  bool get hasAnythingToCompare =>
-      todaySoFar > 0 || windowAverageTotal > 0;
+  bool get hasAnythingToCompare => todaySoFar > 0 || windowAverageTotal > 0;
 
   double windowAverageAt(int minuteOfDay) =>
       _interpolated(windowAverageCumulative, minuteOfDay);
@@ -121,7 +120,6 @@ class const DaySoFarVersusWindowAverage({
       EMinuteOfDayQuantity(minuteOfDay: minuteOfDay, quantity: quantity),
     );
   }
-
 }
 
 /// Per-day cumulative curves, built once so a scrub only sums the window.
@@ -225,12 +223,11 @@ class DaySoFarVersusWindowCurves._({
     if (doses == null || doses.isEmpty) return const [];
     final minutes = doses.keys.toList()..sort();
     var running = 0.0;
-    return [
-      for (final minute in minutes)
-        EMinuteOfDayQuantity(
-          minuteOfDay: minute,
-          quantity: running += doses[minute]!,
-        ),
-    ];
+    return minutes.mapL(
+      (minute) => EMinuteOfDayQuantity(
+        minuteOfDay: minute,
+        quantity: running += doses[minute]!,
+      ),
+    );
   }
 }

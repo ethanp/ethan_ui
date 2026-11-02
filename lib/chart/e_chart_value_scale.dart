@@ -1,6 +1,7 @@
 import 'package:ethan_utils/ethan_utils.dart';
 
-/// How tall a value is on a chart: nice ticks, clock-minute ticks, or a fixed range.
+/// How tall a value is on a chart: nice ticks, clock-minute ticks, minute-total
+/// ticks, or a fixed range.
 class const EChartValueScale({
   required final double min,
   required final double max,
@@ -38,6 +39,20 @@ class const EChartValueScale({
         break;
       }
     }
+    return EChartValueScale._minuteStepsCovering(positiveMax, step);
+  }
+
+  /// Steps by 30, 45, or 60 minutes — the smallest that covers [peakMinutes]
+  /// in at most [maxIntervalCount] gridline intervals — then by whole hours.
+  factory minuteTotals(double peakMinutes, {int maxIntervalCount = 5}) {
+    final positiveMax = peakMinutes > 0 ? peakMinutes : 1.0;
+    return EChartValueScale._minuteStepsCovering(
+      positiveMax,
+      _minuteTotalStep(positiveMax, maxIntervalCount),
+    );
+  }
+
+  factory _minuteStepsCovering(double positiveMax, int step) {
     final niceMax = (positiveMax / step).ceil() * step;
     return EChartValueScale(
       min: 0,
@@ -47,6 +62,15 @@ class const EChartValueScale({
           minute.toDouble(),
       ],
     );
+  }
+
+  static int _minuteTotalStep(double peakMinutes, int maxIntervalCount) {
+    for (final candidate in const [30, 45, 60]) {
+      if ((peakMinutes / candidate).ceil() <= maxIntervalCount) {
+        return candidate;
+      }
+    }
+    return (peakMinutes / (60 * maxIntervalCount)).ceil() * 60;
   }
 
   factory fixed({

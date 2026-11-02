@@ -1,4 +1,5 @@
 import 'package:ethan_ui/ethan_ui.dart';
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -55,32 +56,28 @@ void main() {
     variant: TargetPlatformVariant.only(TargetPlatform.macOS),
   );
 
-  testWidgets(
-    'plain copy still copies only the selected text',
-    (tester) async {
-      await tester.pumpWidget(_spendRowsInBottomSheet());
-      await tester.tap(find.text('Open'));
-      await tester.pumpAndSettle();
+  testWidgets('plain copy still copies only the selected text', (tester) async {
+    await tester.pumpWidget(_spendRowsInBottomSheet());
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
 
-      await _dragSelectWithMouse(
-        tester,
-        from: tester.getCenter(find.text('Coffee')),
-        to: tester.getCenter(find.text('Rent')),
-      );
-      await tester.tapAt(
-        tester.getCenter(find.text('Coffee')),
-        buttons: kSecondaryMouseButton,
-        kind: PointerDeviceKind.mouse,
-      );
-      await tester.pumpAndSettle();
+    await _dragSelectWithMouse(
+      tester,
+      from: tester.getCenter(find.text('Coffee')),
+      to: tester.getCenter(find.text('Rent')),
+    );
+    await tester.tapAt(
+      tester.getCenter(find.text('Coffee')),
+      buttons: kSecondaryMouseButton,
+      kind: PointerDeviceKind.mouse,
+    );
+    await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Copy'));
-      await tester.pumpAndSettle();
+    await tester.tap(find.text('Copy'));
+    await tester.pumpAndSettle();
 
-      expect(clipboardText, 'ee\$4.50Rent');
-    },
-    variant: TargetPlatformVariant.only(TargetPlatform.macOS),
-  );
+    expect(clipboardText, 'ee\$4.50Rent');
+  }, variant: TargetPlatformVariant.only(TargetPlatform.macOS));
 }
 
 Future<void> _dragSelectWithMouse(
@@ -114,18 +111,17 @@ Widget _spendRowsInBottomSheet() {
             builder: (_) => ECopyableRowsSelectionArea(
               headerCells: const ['Merchant', 'Amount'],
               child: ListView(
-                children: [
-                  for (final cells in spendRows)
-                    ECopyableRow(
-                      cells: cells,
-                      child: Row(
-                        children: [
-                          SizedBox(width: 120, child: Text(cells[0])),
-                          Text(cells[1]),
-                        ],
-                      ),
+                children: spendRows.mapL(
+                  (cells) => ECopyableRow(
+                    cells: cells,
+                    child: Row(
+                      children: [
+                        SizedBox(width: 120, child: Text(cells[0])),
+                        Text(cells[1]),
+                      ],
                     ),
-                ],
+                  ),
+                ),
               ),
             ),
           ),

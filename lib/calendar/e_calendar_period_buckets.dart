@@ -34,11 +34,7 @@ abstract final class ECalendarPeriodBuckets() {
     ) {
       filled.add(
         byDay[cursor] ??
-            ECalendarDailyMeasure(
-              date: cursor,
-              quantity: 0,
-              isActive: false,
-            ),
+            ECalendarDailyMeasure(date: cursor, quantity: 0, isActive: false),
       );
     }
     return filled;
@@ -94,6 +90,6 @@ abstract final class ECalendarPeriodBuckets() {
     }
 
     final ordered = buckets.keys.toList()..sort();
-    return [for (final start in ordered) buckets[start]!];
+    return ordered.mapL((start) => buckets[start]!);
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ethan_utils/ethan_utils.dart';
 
 import '../chrome/e_surface.dart';
 import '../theme/e_colors.dart';
@@ -36,9 +37,9 @@ class const LogConsole({
         log: log,
         controller: controller,
         emptyMessage: emptyMessage,
-        highlights: [
-          for (final highlight in highlights) highlight.toLogLineHighlight(),
-        ],
+        highlights: highlights.mapL(
+          (highlight) => highlight.toLogLineHighlight(),
+        ),
         trimBeforeLastHighlight: trimBeforeLastHighlight,
         padding: const EdgeInsets.all(ELayout.spaceMd),
         textStyle: EText.mono,

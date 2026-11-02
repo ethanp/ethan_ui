@@ -56,7 +56,10 @@ class const EAppHeader({
       stackHeight += _lineHeight(_subtitleStyle, textScaler) + 4;
     }
     const verticalPadding = ELayout.spaceSm * 2;
-    final double actionPlate = ETintedAction.compactPlateHeight(textScaler);
+    final double actionPlate = math.max(
+      ETintedAction.compactPlateHeight(textScaler),
+      _impliesLeadingSlot ? _HeaderChrome.leadingSlot : 0,
+    );
     // One extra pixel: device-pixel rounding can still exceed the measured
     // line box by a fraction and trip RenderFlex.
     return (verticalPadding + math.max(stackHeight, actionPlate))
@@ -93,14 +96,18 @@ class const EAppHeader({
     fontWeight: FontWeight.w600,
   );
 
+  /// Lines [preferredSize] reserves for the title. Layout never exceeds it,
+  /// because the laid-out title column can be narrower than the reserved one
+  /// (wide actions) and a second line would overflow the header.
+  int get _reservedTitleLines => _FittedTitle.forWidth(
+    text: title,
+    maxWidth: _reservedTitleWidth,
+    textScaler: _viewTextScaler,
+    styleFor: _titleStyleFor,
+  ).maxLines;
+
   double _titleBlockHeight(TextScaler textScaler) {
-    final _FittedTitle fit = _FittedTitle.forWidth(
-      text: title,
-      maxWidth: _reservedTitleWidth,
-      textScaler: textScaler,
-      styleFor: _titleStyleFor,
-    );
-    if (fit.maxLines == 1) {
+    if (_reservedTitleLines == 1) {
       return _lineHeight(_titleStyleFor(_FittedTitle.largest), textScaler);
     }
     return _lineHeight(
@@ -120,12 +127,14 @@ class const EAppHeader({
     return math.max(48, screenWidth - horizontalInset - _titleChromeWidth);
   }
 
+  bool get _impliesLeadingSlot => leading != null || automaticallyImplyLeading;
+
   double get _titleChromeWidth {
     var chrome = ELayout.spaceLg + ELayout.spaceMd;
     chrome += _HeaderChrome.accentMark + ELayout.spaceMd;
     if (leading != null) {
       chrome += _HeaderChrome.leadingSlot + ELayout.spaceSm;
-    } else if (automaticallyImplyLeading) {
+    } else if (_impliesLeadingSlot) {
       chrome += _HeaderChrome.leadingSlot + ELayout.spaceXs;
     }
     chrome += actions.length * (ELayout.spaceSm + _HeaderChrome.actionSlot);
@@ -245,11 +254,16 @@ class const EAppHeader({
           textScaler: MediaQuery.textScalerOf(context),
           styleFor: _titleStyleFor,
         );
+        final bool wrapsPastReservedLines = fit.maxLines > _reservedTitleLines;
         return Text(
           title,
-          maxLines: fit.maxLines,
+          maxLines: wrapsPastReservedLines ? _reservedTitleLines : fit.maxLines,
           overflow: TextOverflow.ellipsis,
-          style: _titleStyleFor(fit.fontSize),
+          style: _titleStyleFor(
+            wrapsPastReservedLines
+                ? _FittedTitle.smallestSingleLine
+                : fit.fontSize,
+          ),
         );
       },
     );

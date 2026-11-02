@@ -56,14 +56,16 @@ class _ECalendarChartsState() extends State<ECalendarCharts> {
   void _refreshCaches({required bool resetWindow}) {
     _filledDays = ECalendarPeriodBuckets.filledDailyRange(widget.dailyMeasures);
     final through = _throughDay(_filledDays);
-    _smoothed = ETrailingSevenDaySmoothedTotals.of([
-      for (final day in _filledDays)
-        EDailyQuantity(date: day.date, quantity: day.quantity),
-    ], through: through);
-    _minimapSamples = [
-      for (final day in _smoothed)
-        EChartAllTimeRangeSample(date: day.date, value: day.smoothedTotal),
-    ];
+    _smoothed = ETrailingSevenDaySmoothedTotals.of(
+      _filledDays.mapL(
+        (day) => EDailyQuantity(date: day.date, quantity: day.quantity),
+      ),
+      through: through,
+    );
+    _minimapSamples = _smoothed.mapL(
+      (day) =>
+          EChartAllTimeRangeSample(date: day.date, value: day.smoothedTotal),
+    );
     if (_filledDays.isEmpty) return;
     final next = resetWindow
         ? EChartVisibleRange.lastYearThrough(
@@ -195,7 +197,8 @@ class _ECalendarChartsState() extends State<ECalendarCharts> {
   ) {
     var highest = 0.0;
     for (final point in points) {
-      if (point.date.isBefore(visible.start) || point.date.isAfter(visible.end)) {
+      if (point.date.isBefore(visible.start) ||
+          point.date.isAfter(visible.end)) {
         continue;
       }
       if (point.value > highest) highest = point.value;
@@ -226,7 +229,6 @@ class _ECalendarChartsState() extends State<ECalendarCharts> {
         ),
     ];
   }
-
 }
 
 class const _DatedPlotRow({

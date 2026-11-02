@@ -22,10 +22,9 @@ class const EChartYLabels({
     String Function(double value)? formatTick,
     double minWidth = 36,
   }) {
-    final captions = [
-      for (final tick in scale.ticks)
-        formatTick?.call(tick) ?? scale.caption(tick),
-    ];
+    final captions = scale.ticks.mapL(
+      (tick) => formatTick?.call(tick) ?? scale.caption(tick),
+    );
     return math.max(
       minWidth,
       captions.widestLaidOutWidth(EChartAxis.tickLabel) + _captionTrailingPad,

@@ -83,16 +83,15 @@ class _EMonthStackCalendarState<TId>() extends State<EMonthStackCalendar<TId>> {
         );
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            for (final month in months)
-              _month(
-                month,
-                metrics,
-                nextMonthShown: months.contains(
-                  DateTime(month.year, month.month + 1, 1),
-                ),
+          children: months.mapL(
+            (month) => _month(
+              month,
+              metrics,
+              nextMonthShown: months.contains(
+                DateTime(month.year, month.month + 1, 1),
               ),
-          ],
+            ),
+          ),
         );
       },
     );

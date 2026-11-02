@@ -1,4 +1,5 @@
 import 'package:flutter/painting.dart';
+import 'package:ethan_utils/ethan_utils.dart';
 
 import '../theme/e_colors.dart';
 import 'e_chart_plot.dart';
@@ -33,10 +34,9 @@ class const EChartLinesPaint<T extends Object>({
   void _paintSeries(Canvas canvas, EChartSeries<T> seriesItem) {
     if (seriesItem.paintsBars) return;
     if (seriesItem.points.isEmpty) return;
-    final offsets = [
-      for (final point in seriesItem.points)
-        Offset(plot.xForDate(point.date), plot.yForValue(point.value)),
-    ];
+    final offsets = seriesItem.points.mapL(
+      (point) => Offset(plot.xForDate(point.date), plot.yForValue(point.value)),
+    );
     if (offsets.length >= 2 &&
         (seriesItem.paintsStroke || seriesItem.fillColor != null)) {
       final path = seriesItem.interpolation.pathThrough(offsets);

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/services.dart';
 
 import 'e_privacy_lock_look.dart';
@@ -164,7 +165,7 @@ class _EPinLockScreenState()
   Widget _digitRow(List<String> keys) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [for (final String key in keys) _padKey(key)],
+      children: keys.mapL((String key) => _padKey(key)),
     );
   }
 

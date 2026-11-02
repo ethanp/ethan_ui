@@ -13,7 +13,7 @@ import 'e_calendar_instant_quantity.dart';
 
 enum _DayPace({required final Color color, required final String label}) {
   today(color: Color(0xFFFF6B2C), label: 'Today'),
-  windowAverage(color: Color(0xFFA3A8B0), label: 'Average');
+  windowAverage(color: Color(0xFFA3A8B0), label: 'Average'),
 }
 
 class const EDaySoFarVersusWindowChart({
@@ -257,9 +257,10 @@ class _EDaySoFarVersusWindowChartState()
     final span = right - left;
     if (span <= 0) return 0;
     final fraction = ((x - left) / span).clamp(0.0, 1.0);
-    return (fraction * DaySoFarVersusWindowAverage.minutesInDay)
-        .round()
-        .clamp(0, DaySoFarVersusWindowAverage.minutesInDay);
+    return (fraction * DaySoFarVersusWindowAverage.minutesInDay).round().clamp(
+      0,
+      DaySoFarVersusWindowAverage.minutesInDay,
+    );
   }
 
   static num _oneDecimal(double quantity) {
@@ -280,7 +281,10 @@ class _EDaySoFarVersusWindowChartState()
   }
 }
 
-class _ClockCaption({required final int minuteOfDay, required final String text});
+class _ClockCaption({
+  required final int minuteOfDay,
+  required final String text,
+});
 
 class _DaySoFarVersusWindowPainter({
   required final DaySoFarVersusWindowAverage pace,
@@ -300,12 +304,7 @@ class _DaySoFarVersusWindowPainter({
       pace.windowAverageCumulative,
       _DayPace.windowAverage.color,
     );
-    _paintCumulative(
-      canvas,
-      plot,
-      pace.todayCumulative,
-      _DayPace.today.color,
-    );
+    _paintCumulative(canvas, plot, pace.todayCumulative, _DayPace.today.color);
     _paintAsOfMarker(canvas, plot);
     _paintClockCaptions(canvas, plot);
   }
@@ -317,7 +316,8 @@ class _DaySoFarVersusWindowPainter({
         pace.todaySoFar != oldDelegate.pace.todaySoFar ||
         pace.windowAverageTotal != oldDelegate.pace.windowAverageTotal ||
         scale != oldDelegate.scale ||
-        pace.todayCumulative.length != oldDelegate.pace.todayCumulative.length ||
+        pace.todayCumulative.length !=
+            oldDelegate.pace.todayCumulative.length ||
         pace.windowAverageCumulative.length !=
             oldDelegate.pace.windowAverageCumulative.length;
   }
@@ -397,7 +397,10 @@ class _DaySoFarVersusWindowPainter({
         ? pace.nowMinuteOfDay
         : selectedMinute;
     canvas.drawCircle(
-      Offset(plot.xForMinute(todayMinute), plot.yForQuantity(pace.todayAt(todayMinute))),
+      Offset(
+        plot.xForMinute(todayMinute),
+        plot.yForQuantity(pace.todayAt(todayMinute)),
+      ),
       6,
       Paint()..color = _DayPace.today.color,
     );
@@ -411,10 +414,19 @@ class _DaySoFarVersusWindowPainter({
           text: (hour * 60).clockFromMidnight,
         ),
     ];
-    final laidOut = [for (final hour in hours) _laidOut(hour.text)];
+    final laidOut = hours.mapL((hour) => _laidOut(hour.text));
     final painted = <Rect>[];
     for (var index = 0; index < hours.length; index++) {
-      painted.add(_paintHourCaption(canvas, plot, hours[index], laidOut[index], index, hours.length));
+      painted.add(
+        _paintHourCaption(
+          canvas,
+          plot,
+          hours[index],
+          laidOut[index],
+          index,
+          hours.length,
+        ),
+      );
     }
     _paintAsOfCaption(canvas, plot, painted);
   }
@@ -487,8 +499,7 @@ class _PlotFrame({
       top + (1 - scale.fractionFromBottom(quantity)) * _height;
 
   double xForMinute(int minuteOfDay) =>
-      left +
-      (minuteOfDay / DaySoFarVersusWindowAverage.minutesInDay) * _width;
+      left + (minuteOfDay / DaySoFarVersusWindowAverage.minutesInDay) * _width;
 
   Offset offsetFor(EMinuteOfDayQuantity point) =>
       Offset(xForMinute(point.minuteOfDay), yForQuantity(point.quantity));

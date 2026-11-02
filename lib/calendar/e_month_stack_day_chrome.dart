@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ethan_utils/ethan_utils.dart';
 
 import '../theme/e_colors.dart';
 import '../theme/e_heatmap_intensity.dart';
@@ -93,20 +94,19 @@ class const EMonthStackDayChrome({
             left: 2,
             bottom: 2,
             child: Row(
-              children: [
-                for (final marker in presentation.markers)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 2),
-                    child: Text(
-                      marker.label[0],
-                      style: TextStyle(
-                        fontSize: 7,
-                        fontWeight: FontWeight.w700,
-                        color: visual.ink.withValues(alpha: 0.8),
-                      ),
+              children: presentation.markers.mapL(
+                (marker) => Padding(
+                  padding: const EdgeInsets.only(right: 2),
+                  child: Text(
+                    marker.label[0],
+                    style: TextStyle(
+                      fontSize: 7,
+                      fontWeight: FontWeight.w700,
+                      color: visual.ink.withValues(alpha: 0.8),
                     ),
                   ),
-              ],
+                ),
+              ),
             ),
           ),
       ],

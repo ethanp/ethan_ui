@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:ethan_utils/ethan_utils.dart';
 import 'package:flutter/material.dart';
 
 /// One rendered log line for [LogTextView].
@@ -264,7 +265,7 @@ class _LogTextViewState() extends State<LogTextView> {
       _lastHighlightIndexValue = -1;
       return;
     }
-    _allLines = [for (final line in logText.split('\n')) LogTextLine(text: line)];
+    _allLines = logText.split('\n').mapL((line) => LogTextLine(text: line));
     _cachedLog = logText;
     _rescanHighlights();
   }
@@ -272,9 +273,7 @@ class _LogTextViewState() extends State<LogTextView> {
   void _appendLogSuffix(String suffix) {
     if (suffix.isEmpty) return;
     if (_allLines.isEmpty) {
-      _allLines = [
-        for (final line in suffix.split('\n')) LogTextLine(text: line),
-      ];
+      _allLines = suffix.split('\n').mapL((line) => LogTextLine(text: line));
       _rescanHighlights();
       return;
     }

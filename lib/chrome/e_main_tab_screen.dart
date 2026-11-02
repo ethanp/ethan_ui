@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ethan_utils/ethan_utils.dart';
 
 import 'e_scaffold_shell.dart';
 import 'e_tab_bar.dart';
@@ -25,8 +26,10 @@ class const EMainTabScreen({
 
 class _EMainTabScreenState() extends State<EMainTabScreen> {
   int _selectedTabIndex = 0;
-  late final List<GlobalKey<NavigatorState>> _tabNavigatorKeys =
-      List.generate(widget.tabs.length, (_) => GlobalKey<NavigatorState>());
+  late final List<GlobalKey<NavigatorState>> _tabNavigatorKeys = List.generate(
+    widget.tabs.length,
+    (_) => GlobalKey<NavigatorState>(),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -34,9 +37,7 @@ class _EMainTabScreenState() extends State<EMainTabScreen> {
       contentMaxWidth: double.infinity,
       bottomBar: ETabBar(
         selectedIndex: _selectedTabIndex,
-        tabs: [
-          for (final tab in widget.tabs) ETab(icon: tab.icon, label: tab.label),
-        ],
+        tabs: widget.tabs.mapL((tab) => ETab(icon: tab.icon, label: tab.label)),
         onSelected: _showTabOrPopItToRoot,
       ),
       body: IndexedStack(
@@ -51,9 +52,7 @@ class _EMainTabScreenState() extends State<EMainTabScreen> {
 
   void _showTabOrPopItToRoot(int index) {
     if (index == _selectedTabIndex) {
-      _tabNavigatorKeys[index].currentState?.popUntil(
-        (route) => route.isFirst,
-      );
+      _tabNavigatorKeys[index].currentState?.popUntil((route) => route.isFirst);
       return;
     }
     setState(() => _selectedTabIndex = index);

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ethan_utils/ethan_utils.dart';
 
 import '../theme/e_heatmap_intensity.dart';
 import '../theme/e_layout.dart';
@@ -15,13 +16,12 @@ class const EHeatmapLegend({required final EHeatmapScale scale})
         Text(scale.legendTitle, style: EText.caption),
         const SizedBox(height: ELayout.spaceSm),
         Row(
-          children: [
-            for (final level in EHeatmapIntensity.values)
-              EHeatmapLegendSwatch(
-                level: level,
-                caption: scale.captionFor(level),
-              ),
-          ],
+          children: EHeatmapIntensity.values.mapL(
+            (level) => EHeatmapLegendSwatch(
+              level: level,
+              caption: scale.captionFor(level),
+            ),
+          ),
         ),
       ],
     );
